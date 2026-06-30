@@ -31,7 +31,7 @@ function mapStatus(status, liveTime, isLive) {
 }
 
 async function fetchVarzesh3Today() {
-    const res = await fetch("https://web-api.varzesh3.com/v2.0/livescore/today", { signal: AbortSignal.timeout(8000) });
+    const res = await fetch("https://web-api.varzesh3.com/v2.0/livescore/today", { signal: AbortSignal.timeout(3000) });
     const data = await res.json();
     const matches = [];
     for (const league of data) {
@@ -47,7 +47,7 @@ async function fetchEvents(matchId) {
     try {
         const res = await fetch(
             `https://web-api.varzesh3.com/v2.0/livescore/football/matches/${matchId}/events`,
-            { signal: AbortSignal.timeout(5000) }
+            { signal: AbortSignal.timeout(2000) }
         );
         const events = await res.json();
         const homeGoals = [], awayGoals = [];
