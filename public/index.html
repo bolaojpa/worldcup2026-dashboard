@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Copa do Mundo 2026</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="glass-header">
+            <div class="logo-container">
+                <i class="fa-solid fa-trophy"></i>
+                <h1>Copa do Mundo 2026</h1>
+            </div>
+            <nav class="tabs">
+                <button class="tab-btn active" data-tab="matches"><i class="fa-regular fa-calendar-days"></i> Jogos</button>
+                <button class="tab-btn" data-tab="groups"><i class="fa-solid fa-list-ol"></i> Grupos</button>
+                <button class="tab-btn" data-tab="teams"><i class="fa-solid fa-flag"></i> Seleções</button>
+                <button class="tab-btn" data-tab="stadiums"><i class="fa-solid fa-map-location-dot"></i> Estádios</button>
+            </nav>
+        </header>
+
+        <main class="content-area">
+            <div id="loading-spinner" class="spinner-container">
+                <div class="spinner"></div>
+                <p>Carregando dados ao vivo da API...</p>
+            </div>
+
+            <!-- Matches Tab -->
+            <section id="matches-tab" class="tab-content active">
+                <div class="filters-container">
+                    <button class="filter-btn active" data-filter="all">Todos os Jogos</button>
+                    <button class="filter-btn" data-filter="live"><span class="pulse-dot"></span> Ao Vivo</button>
+                    <button class="filter-btn" data-filter="finished">Finalizados</button>
+                    <button class="filter-btn" data-filter="group">Fase de Grupos</button>
+                    <button class="filter-btn" data-filter="knockout">Mata-Mata</button>
+                </div>
+                <div class="grid-container" id="matches-grid"></div>
+            </section>
+
+            <!-- Groups Tab -->
+            <section id="groups-tab" class="tab-content">
+                <div class="grid-container" id="groups-grid"></div>
+            </section>
+
+            <!-- Teams Tab -->
+            <section id="teams-tab" class="tab-content">
+                <div class="grid-container" id="teams-grid"></div>
+            </section>
+
+            <!-- Stadiums Tab -->
+            <section id="stadiums-tab" class="tab-content">
+                <div class="grid-container" id="stadiums-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
