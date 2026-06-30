@@ -73,7 +73,8 @@ router.get('/groups', async(req,res) => {
         return res.send({groups});
     }catch(err){
         return res.status(400).send({
-            error: 'Error getting all groups'
+            error: 'Error getting all groups',
+            details: err.message
         });
     };
 });
@@ -139,7 +140,8 @@ router.get('/groups', async(req,res) => {
         return res.send({groups});
     }catch(err){
         return res.status(400).send({
-            error: 'Error getting all groups'
+            error: 'Error getting all groups',
+            details: err.message
         });
     };
 });
@@ -378,7 +380,8 @@ router.get('/games', async(req,res) => {
         return res.send({games: gamesWithNames});
     }catch(err){
         return res.status(400).send({
-            error: 'Error getting all games'
+            error: 'Error getting all games',
+            details: err.message
         });
     };
 });
