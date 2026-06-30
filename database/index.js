@@ -31,7 +31,6 @@ mongoose.connect(MONGODB_CONFIG.url, MONGODB_CONFIG.options)
     console.log("✅ Successful connection with MongoDB");
 }).catch((err) => {
     console.log('❌ Error: Connection to MongoDB not successful', err.message);
-    process.exit(1);
 });
 
 mongoose.Promise = global.Promise;
