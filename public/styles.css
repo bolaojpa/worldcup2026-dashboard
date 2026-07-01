@@ -1436,6 +1436,11 @@ body {
     .details-status-badge {
         margin-top: 1.5rem !important;
     }
+
+    .details-score {
+        font-size: 2rem !important;
+        letter-spacing: 2px !important;
+    }
 }
 
 @media (min-width: 769px) {
