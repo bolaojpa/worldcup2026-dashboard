@@ -1106,3 +1106,14 @@ body {
     letter-spacing: 0.5px;
     padding-right: 2rem;
 }
+
+/* Flag placeholder styles */
+.flag-placeholder {
+    width: 18px;
+    height: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.45);
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.05);
+    display: inline-block;
+    box-sizing: border-box;
+}

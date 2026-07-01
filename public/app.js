@@ -837,11 +837,11 @@ function renderBracketMatch(matchId, label) {
             <div class="bracket-match-card placeholder">
                 <div class="bracket-match-header">J${matchId}</div>
                 <div class="bracket-team-row">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg" style="width: 18px; height: 12px; opacity: 0.4;">
+                    <div class="flag-placeholder"></div>
                     <span style="font-size:0.75rem; color:var(--text-secondary)">?</span>
                 </div>
                 <div class="bracket-team-row">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg" style="width: 18px; height: 12px; opacity: 0.4;">
+                    <div class="flag-placeholder"></div>
                     <span style="font-size:0.75rem; color:var(--text-secondary)">?</span>
                 </div>
             </div>
@@ -865,7 +865,21 @@ function renderBracketMatch(matchId, label) {
     const homePen = match.home_penalty_score && match.home_penalty_score !== 'null' && match.home_penalty_score !== '' ? `(${match.home_penalty_score})` : '';
     const awayPen = match.away_penalty_score && match.away_penalty_score !== 'null' && match.away_penalty_score !== '' ? `(${match.away_penalty_score})` : '';
 
-    const statusText = match.finished === "TRUE" ? "Fim" : (match.time_elapsed !== "notstarted" ? "Ao Vivo" : match.local_date.split(" ")[1] || "");
+    // Convert local date time to Brasília Time (UTC-3)
+    const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
+    const timeStr = isNaN(dateObj.getTime()) ? (match.local_date.split(" ")[1] || "") : dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+    const statusText = match.finished === "TRUE" ? "Fim" : (match.time_elapsed !== "notstarted" ? "Ao Vivo" : timeStr);
+
+    const isHomePlaceholder = !match.home_team_id || match.home_team_id === "0";
+    const isAwayPlaceholder = !match.away_team_id || match.away_team_id === "0";
+
+    const homeFlagHtml = isHomePlaceholder
+        ? `<div class="flag-placeholder bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}')"></div>`
+        : `<img src="${homeTeam.flag}" class="bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
+
+    const awayFlagHtml = isAwayPlaceholder
+        ? `<div class="flag-placeholder bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}')"></div>`
+        : `<img src="${awayTeam.flag}" class="bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
 
     return `
         <div class="bracket-match-card" onclick="showMatchDetails('${match.id}')">
@@ -875,7 +889,7 @@ function renderBracketMatch(matchId, label) {
             </div>
             <div class="bracket-team-row ${homeClass}">
                 <div class="bracket-team-info">
-                    <img src="${homeTeam.flag}" class="bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                    ${homeFlagHtml}
                 </div>
                 <div class="bracket-team-score">
                     ${homeScore} <span class="penalties">${homePen}</span>
@@ -883,7 +897,7 @@ function renderBracketMatch(matchId, label) {
             </div>
             <div class="bracket-team-row ${awayClass}">
                 <div class="bracket-team-info">
-                    <img src="${awayTeam.flag}" class="bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                    ${awayFlagHtml}
                 </div>
                 <div class="bracket-team-score">
                     ${awayScore} <span class="penalties">${awayPen}</span>
