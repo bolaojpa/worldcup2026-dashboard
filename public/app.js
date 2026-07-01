@@ -252,9 +252,10 @@ function setupDetailsView() {
 async function fetchAllData(silent = false) {
     if (!silent) spinner.style.display = 'flex';
     try {
+        const cacheBuster = Math.floor(Date.now() / 15000);
         const [mRes, gRes, tRes, sRes] = await Promise.all([
-            fetch(`${API_BASE}/games`),
-            fetch(`${API_BASE}/groups`),
+            fetch(`${API_BASE}/games?t=${cacheBuster}`),
+            fetch(`${API_BASE}/groups?t=${cacheBuster}`),
             fetch(`${API_BASE}/teams`),
             fetch(`${API_BASE}/stadiums`)
         ]);
@@ -473,7 +474,13 @@ function renderMatches() {
             return matchDateStr === todayStr;
         });
     } else if (state.activeFilter === 'live') {
-        filteredMatches = state.matches.filter(m => m.finished !== "TRUE" && m.time_elapsed !== "notstarted");
+        filteredMatches = state.matches.filter(m => 
+            m.finished !== "TRUE" && 
+            m.finished !== true && 
+            m.time_elapsed !== "notstarted" && 
+            m.time_elapsed !== "finished" && 
+            m.time_elapsed !== "Finished"
+        );
     } else if (state.activeFilter === 'finished') {
         filteredMatches = state.matches.filter(m => m.finished === "TRUE");
     } else if (state.activeFilter === 'group') {
