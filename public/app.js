@@ -634,6 +634,9 @@ function renderMatches() {
                     statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> INT</span>`;
                 } else if (elapsedText) {
                     statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
+                } else if (diffMins > 0 && diffMins <= 60) {
+                    // Contagem regressiva se começar em menos de 1h
+                    statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> ${diffMins} min</span>`;
                 } else if (isSoon) {
                     statusHtml = `<span class="badge upcoming-soon" title="${soonText}"><i class="fa-solid fa-hourglass-start"></i> ${timeStr}</span>`;
                 } else {
@@ -658,7 +661,6 @@ function renderMatches() {
             matchItem.innerHTML = `
                 <div class="match-list-meta">
                     <span class="phase" title="${stageText}">${stageText}</span>
-                    <span class="time">${timeStr}</span>
                 </div>
                 <div class="match-list-teams">
                     <div class="match-list-team ${homeClass}">
