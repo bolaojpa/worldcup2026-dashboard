@@ -48,7 +48,7 @@ function getPlayerName(id, faName) {
 }
 
 function mapStatus(status, liveTime, isLive) {
-  if (status === 2) return "Intervalo";
+  if (status === 2 && !liveTime) return "Intervalo";
   if (isLive) return liveTime || "Live";
   if (status === 7) return "finished";
   return "notstarted";
@@ -216,6 +216,8 @@ let lastFinishedCount = 0;
 async function poll() {
   const client = new MongoClient(MONGO_URI);
   try {
+    // Reload player Db to pick up manual translation corrections
+    try { playerDb = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/player-names.json"), "utf8")); } catch {}
     await client.connect();
     const db = DB_NAME ? client.db(DB_NAME) : client.db();
     const todayMatches = await fetchVarzesh3(0);
