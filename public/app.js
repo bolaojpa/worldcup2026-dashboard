@@ -60,35 +60,18 @@ function parseLocalDateToBrasilia(localDateStr, stadiumId) {
     }
 }
 
-// Retorna o tempo do jogo em tempo real (calculado se a API retornar apenas 'live')
+// Retorna o tempo do jogo vindo da API
 function getLiveTimeText(match) {
     if (!match.time_elapsed || match.time_elapsed === 'notstarted') return '';
     
     const cleanElapsed = (match.time_elapsed || "").trim().toLowerCase();
-    if (cleanElapsed !== 'live') {
-        if (cleanElapsed === 'intervalo') return 'Intervalo';
-        return match.time_elapsed;
+    if (cleanElapsed === 'live') {
+        return 'AO VIVO';
     }
-    
-    // Calcula o minuto atual do jogo baseado no horário de início
-    const kickoff = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
-    const now = new Date();
-    const diffMs = now.getTime() - kickoff.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 0) {
-        return "1'";
-    } else if (diffMins <= 45) {
-        return `${diffMins}'`;
-    } else if (diffMins <= 60) {
-        return "Intervalo";
-    } else if (diffMins <= 105) {
-        // Segundo tempo (descontando 15min de intervalo)
-        return `${diffMins - 15}'`;
-    } else {
-        // Prorrogação / Acréscimos finais
-        return "90+'";
+    if (cleanElapsed === 'intervalo') {
+        return 'Intervalo';
     }
+    return match.time_elapsed; // Retorna exatamente o tempo da API (ex: "45+'", "67'")
 }
 
 // Tradução das fases da copa
@@ -398,6 +381,8 @@ function showMatchDetails(matchId) {
         const elapsedText = getLiveTimeText(match);
         if (elapsedText === 'Intervalo') {
             statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> Intervalo</span>`;
+        } else if (elapsedText === 'AO VIVO') {
+            statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> AO VIVO</span>`;
         } else if (elapsedText) {
             statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> AO VIVO - ${elapsedText}</span>`;
         } else {
