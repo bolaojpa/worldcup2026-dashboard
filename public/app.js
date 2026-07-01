@@ -6,7 +6,8 @@ const state = {
     teams: [],
     stadiums: [],
     activeFilter: 'today',
-    visibleMatchesCount: 15
+    visibleMatchesCount: 15,
+    selectedGroupFilter: null
 };
 
 // Elements
@@ -137,9 +138,11 @@ function setupTabs() {
             btn.classList.add('active');
             document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
 
-            // Hide details view when shifting tabs
-            document.getElementById('match-details-view').style.display = 'none';
-            document.getElementById('matches-tab').style.display = 'block';
+            // Se clicar na aba "Jogos" superior, garante que exiba a lista de jogos, e não os detalhes
+            if (btn.dataset.tab === 'matches') {
+                document.getElementById('match-details-view').style.display = 'none';
+                document.getElementById('matches-list-view').style.display = 'block';
+            }
         });
     });
 }
@@ -151,11 +154,12 @@ function setupFilters() {
             filterBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             state.activeFilter = btn.dataset.filter;
+            state.selectedGroupFilter = null; // Reseta filtro de grupo específico ao trocar de filtro
             state.visibleMatchesCount = 15; // Reset pagination
             
-            // Hide details view when changing filter
+            // Garante que mostre a lista e oculte os detalhes ao trocar de filtro
             document.getElementById('match-details-view').style.display = 'none';
-            document.getElementById('matches-tab').style.display = 'block';
+            document.getElementById('matches-list-view').style.display = 'block';
 
             renderMatches();
         });
@@ -167,7 +171,7 @@ function setupDetailsView() {
     if (backBtn) {
         backBtn.addEventListener('click', () => {
             document.getElementById('match-details-view').style.display = 'none';
-            document.getElementById('matches-tab').style.display = 'block';
+            document.getElementById('matches-list-view').style.display = 'block';
         });
     }
 }
@@ -218,7 +222,7 @@ function showMatchDetails(matchId) {
     const match = state.matches.find(m => m.id == matchId);
     if (!match) return;
 
-    document.getElementById('matches-tab').style.display = 'none';
+    document.getElementById('matches-list-view').style.display = 'none';
     document.getElementById('match-details-view').style.display = 'block';
 
     const stageTitle = match.type === 'group' ? 'Fase de Grupos' : (phaseTranslations[match.type] || 'Mata-Mata');
@@ -349,9 +353,34 @@ function renderMatches() {
     } else if (state.activeFilter === 'finished') {
         filteredMatches = state.matches.filter(m => m.finished === "TRUE");
     } else if (state.activeFilter === 'group') {
-        filteredMatches = state.matches.filter(m => m.type === "group");
+        if (state.selectedGroupFilter) {
+            filteredMatches = state.matches.filter(m => m.type === "group" && m.group === state.selectedGroupFilter);
+        } else {
+            filteredMatches = state.matches.filter(m => m.type === "group");
+        }
     } else if (state.activeFilter === 'knockout') {
         filteredMatches = state.matches.filter(m => m.type !== "group");
+    }
+
+    // Render info header if filtered by a specific group
+    if (state.activeFilter === 'group' && state.selectedGroupFilter) {
+        const infoHeader = document.createElement('div');
+        infoHeader.style.padding = '0.75rem 1.25rem';
+        infoHeader.style.background = 'rgba(56, 189, 248, 0.08)';
+        infoHeader.style.border = '1px solid rgba(56, 189, 248, 0.15)';
+        infoHeader.style.borderRadius = '8px';
+        infoHeader.style.marginBottom = '1.25rem';
+        infoHeader.style.display = 'flex';
+        infoHeader.style.justifyContent = 'space-between';
+        infoHeader.style.alignItems = 'center';
+        infoHeader.style.fontSize = '0.9rem';
+        infoHeader.style.width = '100%';
+        infoHeader.style.boxSizing = 'border-box';
+        infoHeader.innerHTML = `
+            <span>Mostrando apenas jogos do <strong style="color:var(--accent-color)">Grupo ${state.selectedGroupFilter}</strong></span>
+            <button style="background:none; border:none; color:var(--accent-color); cursor:pointer; font-weight:bold; font-size:0.85rem; padding:0; display:flex; align-items:center; gap:0.25rem;" onclick="clearGroupFilter()"><i class="fa-solid fa-xmark"></i> Limpar Filtro</button>
+        `;
+        container.appendChild(infoHeader);
     }
 
     if (filteredMatches.length === 0) {
@@ -502,6 +531,39 @@ function renderMatches() {
     });
 }
 
+function showGroupMatches(groupName) {
+    state.selectedGroupFilter = groupName;
+    state.activeFilter = 'group';
+    
+    // Altera a aba ativa superior para "Jogos"
+    tabs.forEach(t => t.classList.remove('active'));
+    tabContents.forEach(c => c.classList.remove('active'));
+    
+    const matchesTabBtn = document.querySelector('[data-tab="matches"]');
+    if (matchesTabBtn) matchesTabBtn.classList.add('active');
+    document.getElementById('matches-tab').classList.add('active');
+
+    // Altera o filtro ativo na aba "Jogos" para "Fase de Grupos"
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === 'group') {
+            btn.classList.add('active');
+        }
+    });
+
+    // Certifica-se de que a listagem de jogos seja exibida e os detalhes ocultos
+    document.getElementById('match-details-view').style.display = 'none';
+    document.getElementById('matches-list-view').style.display = 'block';
+
+    renderMatches();
+}
+
+window.clearGroupFilter = () => {
+    state.selectedGroupFilter = null;
+    renderMatches();
+};
+
 function renderGroups() {
     const container = document.getElementById('groups-grid');
     container.innerHTML = '';
@@ -509,6 +571,9 @@ function renderGroups() {
     state.groups.forEach(group => {
         const card = document.createElement('div');
         card.className = 'glass-card';
+        card.style.cursor = 'pointer';
+        card.title = `Clique para ver os jogos do Grupo ${group.name}`;
+        card.addEventListener('click', () => showGroupMatches(group.name));
         
         let tableRows = '';
         group.teams.forEach((t, index) => {
@@ -533,7 +598,10 @@ function renderGroups() {
         });
 
         card.innerHTML = `
-            <h3 style="margin-bottom: 1rem; color: var(--accent-color)">Grupo ${group.group}</h3>
+            <h3 style="margin-bottom: 0.5rem; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center;">
+                Grupo ${group.name}
+                <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: normal;"><i class="fa-solid fa-calendar-days"></i> Ver Jogos</span>
+            </h3>
             <table class="group-table">
                 <thead>
                     <tr>
