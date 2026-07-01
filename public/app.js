@@ -298,6 +298,7 @@ function showMatchDetails(matchId) {
 
     const displayHomeScore = match.time_elapsed === 'notstarted' ? '' : (match.home_score || 0);
     const displayAwayScore = match.time_elapsed === 'notstarted' ? '' : (match.away_score || 0);
+    const hasPenalties = match.home_penalty_score && match.home_penalty_score !== 'null' && match.home_penalty_score !== '';
 
     document.getElementById('match-details-content').innerHTML = `
         <div class="match-details-card">
@@ -312,7 +313,7 @@ function showMatchDetails(matchId) {
                     <div class="details-score">
                         ${match.time_elapsed === 'notstarted' ? 'VS' : `${displayHomeScore} - ${displayAwayScore}`}
                     </div>
-                    ${match.home_penalty_score ? `<div class="details-penalties" style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">Pênaltis: ${match.home_penalty_score} - ${match.away_penalty_score}</div>` : ''}
+                    ${hasPenalties ? `<div class="details-penalties" style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">Pênaltis: ${match.home_penalty_score} - ${match.away_penalty_score}</div>` : ''}
                     <div class="details-status-badge">
                         ${statusHtml}
                     </div>
@@ -836,8 +837,8 @@ function renderBracketMatch(matchId, label) {
     const homeScore = match.finished === "TRUE" || match.time_elapsed !== "notstarted" ? match.home_score : "";
     const awayScore = match.finished === "TRUE" || match.time_elapsed !== "notstarted" ? match.away_score : "";
 
-    const homePen = match.home_penalty_score ? `(${match.home_penalty_score})` : '';
-    const awayPen = match.away_penalty_score ? `(${match.away_penalty_score})` : '';
+    const homePen = match.home_penalty_score && match.home_penalty_score !== 'null' && match.home_penalty_score !== '' ? `(${match.home_penalty_score})` : '';
+    const awayPen = match.away_penalty_score && match.away_penalty_score !== 'null' && match.away_penalty_score !== '' ? `(${match.away_penalty_score})` : '';
 
     const statusText = match.finished === "TRUE" ? "Fim" : (match.time_elapsed !== "notstarted" ? "Ao Vivo" : match.local_date.split(" ")[1] || "");
 
