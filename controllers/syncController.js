@@ -24,7 +24,7 @@ function getPlayerName(id, faName) {
 }
 
 function mapStatus(status, liveTime, isLive) {
-    if (status === 2) return "Intervalo";
+    if (status === 2 && !liveTime) return "Intervalo";
     if (isLive) return liveTime || "Live";
     if (status === 7) return "finished";
     return "notstarted";
