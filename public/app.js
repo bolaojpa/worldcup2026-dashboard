@@ -762,17 +762,58 @@ function renderStadiums() {
     });
 }
 
+window.showFlagTooltip = (el, name) => {
+    let tooltip = document.getElementById('flag-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'flag-tooltip';
+        tooltip.style.position = 'absolute';
+        tooltip.style.background = 'rgba(15, 23, 42, 0.95)';
+        tooltip.style.border = '1px solid var(--accent-color)';
+        tooltip.style.borderRadius = '4px';
+        tooltip.style.color = '#fff';
+        tooltip.style.padding = '0.25rem 0.5rem';
+        tooltip.style.fontSize = '0.75rem';
+        tooltip.style.pointerEvents = 'none';
+        tooltip.style.zIndex = '9999';
+        tooltip.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
+        tooltip.style.transition = 'opacity 0.2s';
+        tooltip.style.fontWeight = 'bold';
+        document.body.appendChild(tooltip);
+    }
+
+    tooltip.innerText = name;
+    tooltip.style.opacity = '1';
+    
+    const rect = el.getBoundingClientRect();
+    tooltip.style.left = `${rect.left + window.scrollX + (rect.width/2) - (tooltip.offsetWidth/2)}px`;
+    tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 8}px`;
+
+    if (window.tooltipTimeout) clearTimeout(window.tooltipTimeout);
+    window.tooltipTimeout = setTimeout(() => {
+        tooltip.style.opacity = '0';
+    }, 2000);
+};
+
+// Fechar tooltip ao clicar fora
+document.addEventListener('click', () => {
+    const tooltip = document.getElementById('flag-tooltip');
+    if (tooltip) tooltip.style.opacity = '0';
+});
+
 function renderBracketMatch(matchId, label) {
     const match = state.matches.find(m => m.id == matchId);
     if (!match) {
         return `
             <div class="bracket-match-card placeholder">
-                <div class="bracket-match-header">Jogo ${matchId}</div>
+                <div class="bracket-match-header">J${matchId}</div>
                 <div class="bracket-team-row">
-                    <span style="color:var(--text-secondary); font-size:0.75rem">A definir</span>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg" style="width: 18px; height: 12px; opacity: 0.4;">
+                    <span style="font-size:0.75rem; color:var(--text-secondary)">?</span>
                 </div>
                 <div class="bracket-team-row">
-                    <span style="color:var(--text-secondary); font-size:0.75rem">A definir</span>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg" style="width: 18px; height: 12px; opacity: 0.4;">
+                    <span style="font-size:0.75rem; color:var(--text-secondary)">?</span>
                 </div>
             </div>
         `;
@@ -801,13 +842,12 @@ function renderBracketMatch(matchId, label) {
     return `
         <div class="bracket-match-card" onclick="showMatchDetails('${match.id}')">
             <div class="bracket-match-header">
-                <span>J${match.id} - ${label}</span>
+                <span>J${match.id}</span>
                 <span style="color:var(--accent-color); font-weight:800">${statusText}</span>
             </div>
             <div class="bracket-team-row ${homeClass}">
                 <div class="bracket-team-info">
-                    <img src="${homeTeam.flag}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-                    <span title="${homeTeam.name_en}">${homeTeam.name_en}</span>
+                    <img src="${homeTeam.flag}" class="bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
                 </div>
                 <div class="bracket-team-score">
                     ${homeScore} <span class="penalties">${homePen}</span>
@@ -815,8 +855,7 @@ function renderBracketMatch(matchId, label) {
             </div>
             <div class="bracket-team-row ${awayClass}">
                 <div class="bracket-team-info">
-                    <img src="${awayTeam.flag}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-                    <span title="${awayTeam.name_en}">${awayTeam.name_en}</span>
+                    <img src="${awayTeam.flag}" class="bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
                 </div>
                 <div class="bracket-team-score">
                     ${awayScore} <span class="penalties">${awayPen}</span>

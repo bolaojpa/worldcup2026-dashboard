@@ -896,9 +896,9 @@ body {
 
 .bracket-container {
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
     padding: 1.5rem;
-    min-width: 1350px;
+    min-width: 950px;
     margin: 0 auto;
 }
 
@@ -907,11 +907,11 @@ body {
     flex-direction: column;
     justify-content: space-around;
     height: 950px;
-    width: 190px;
+    width: 95px;
 }
 
 .bracket-column.center-column {
-    width: 280px;
+    width: 220px;
     justify-content: center;
     gap: 2.5rem;
 }
@@ -1017,4 +1017,13 @@ body {
 .bracket-team-row.winner {
     font-weight: 800;
     color: #fff;
+}
+
+.bracket-flag {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.bracket-flag:hover {
+    transform: scale(1.2);
 }
