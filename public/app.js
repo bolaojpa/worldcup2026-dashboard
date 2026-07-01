@@ -106,6 +106,7 @@ function parseScorers(scorers) {
 
 // Init
 async function init() {
+    setupHamburger();
     setupTabs();
     setupFilters();
     setupDetailsView();
@@ -127,6 +128,32 @@ async function init() {
     }, 10000);
 }
 
+function setupHamburger() {
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const navTabs = document.getElementById('nav-tabs');
+    if (hamburgerBtn && navTabs) {
+        hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navTabs.classList.toggle('open');
+        });
+        
+        // Fechar ao clicar em qualquer aba
+        const tabBtns = navTabs.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                navTabs.classList.remove('open');
+            });
+        });
+
+        // Fechar ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!navTabs.contains(e.target) && e.target !== hamburgerBtn) {
+                navTabs.classList.remove('open');
+            }
+        });
+    }
+}
+
 function setupTabs() {
     tabs.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -141,6 +168,8 @@ function setupTabs() {
 
 function setupFilters() {
     const filterBtns = document.querySelectorAll('.filter-btn');
+    const mobileSelect = document.getElementById('mobile-filter-select');
+
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             filterBtns.forEach(b => b.classList.remove('active'));
@@ -149,9 +178,31 @@ function setupFilters() {
             state.selectedGroupFilter = null; // Reseta filtro de grupo específico ao trocar de filtro
             state.visibleMatchesCount = 15; // Reset pagination
 
+            if (mobileSelect) mobileSelect.value = btn.dataset.filter;
+
             renderMatches();
         });
     });
+
+    if (mobileSelect) {
+        mobileSelect.addEventListener('change', (e) => {
+            const selectedValue = e.target.value;
+            state.activeFilter = selectedValue;
+            state.selectedGroupFilter = null;
+            state.visibleMatchesCount = 15;
+
+            // Sincronizar botões desktop
+            filterBtns.forEach(btn => {
+                if (btn.dataset.filter === selectedValue) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            renderMatches();
+        });
+    }
 }
 
 function setupDetailsView() {
@@ -601,6 +652,10 @@ function showGroupMatches(groupName) {
             btn.classList.add('active');
         }
     });
+
+    // Sincronizar select de filtro mobile se houver
+    const mobileSelect = document.getElementById('mobile-filter-select');
+    if (mobileSelect) mobileSelect.value = 'group';
 
     // Certifica-se de que a listagem de jogos seja exibida e os detalhes ocultos
     document.getElementById('match-details-view').style.display = 'none';

@@ -15,7 +15,10 @@
                 <i class="fa-solid fa-trophy"></i>
                 <h1>Copa do Mundo 2026</h1>
             </div>
-            <nav class="tabs">
+            <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu principal">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <nav class="tabs" id="nav-tabs">
                 <button class="tab-btn active" data-tab="matches"><i class="fa-regular fa-calendar-days"></i> Jogos</button>
                 <button class="tab-btn" data-tab="groups"><i class="fa-solid fa-list-ol"></i> Grupos</button>
                 <button class="tab-btn" data-tab="classification"><i class="fa-solid fa-sitemap"></i> Classificação</button>
@@ -33,12 +36,25 @@
             <!-- Matches Tab -->
             <section id="matches-tab" class="tab-content active">
                 <div class="filters-container">
-                    <button class="filter-btn active" data-filter="today">Jogos de Hoje</button>
-                    <button class="filter-btn" data-filter="live"><span class="pulse-dot"></span> Ao Vivo</button>
-                    <button class="filter-btn" data-filter="all">Todos os Jogos</button>
-                    <button class="filter-btn" data-filter="finished">Finalizados</button>
-                    <button class="filter-btn" data-filter="group">Fase de Grupos</button>
-                    <button class="filter-btn" data-filter="knockout">Mata-Mata</button>
+                    <div class="desktop-filters">
+                        <button class="filter-btn active" data-filter="today">Jogos de Hoje</button>
+                        <button class="filter-btn" data-filter="live"><span class="pulse-dot"></span> Ao Vivo</button>
+                        <button class="filter-btn" data-filter="all">Todos os Jogos</button>
+                        <button class="filter-btn" data-filter="finished">Finalizados</button>
+                        <button class="filter-btn" data-filter="group">Fase de Grupos</button>
+                        <button class="filter-btn" data-filter="knockout">Mata-Mata</button>
+                    </div>
+                    <div class="mobile-filters">
+                        <i class="fa-solid fa-filter filter-icon"></i>
+                        <select class="mobile-filter-select" id="mobile-filter-select">
+                            <option value="today">📅 Jogos de Hoje</option>
+                            <option value="live">🔴 Ao Vivo</option>
+                            <option value="all">🌐 Todos os Jogos</option>
+                            <option value="finished">🏁 Finalizados</option>
+                            <option value="group">🏆 Fase de Grupos</option>
+                            <option value="knockout">⚡ Mata-Mata</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="list-container" id="matches-list"></div>
                 <div class="pagination-container" id="pagination-area"></div>
