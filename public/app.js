@@ -791,7 +791,7 @@ function renderStadiums() {
     });
 }
 
-window.showFlagTooltip = (el, name) => {
+window.showFlagTooltip = (el, name, position = 'top') => {
     let tooltip = document.getElementById('flag-tooltip');
     if (!tooltip) {
         tooltip = document.createElement('div');
@@ -816,7 +816,12 @@ window.showFlagTooltip = (el, name) => {
     
     const rect = el.getBoundingClientRect();
     tooltip.style.left = `${rect.left + window.scrollX + (rect.width/2) - (tooltip.offsetWidth/2)}px`;
-    tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 8}px`;
+    
+    if (position === 'top') {
+        tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 8}px`;
+    } else {
+        tooltip.style.top = `${rect.bottom + window.scrollY + 8}px`;
+    }
 
     if (window.tooltipTimeout) clearTimeout(window.tooltipTimeout);
     window.tooltipTimeout = setTimeout(() => {
@@ -874,12 +879,12 @@ function renderBracketMatch(matchId, label) {
     const isAwayPlaceholder = !match.away_team_id || match.away_team_id === "0";
 
     const homeFlagHtml = isHomePlaceholder
-        ? `<div class="flag-placeholder bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}')"></div>`
-        : `<img src="${homeTeam.flag}" class="bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
+        ? `<div class="flag-placeholder bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')"></div>`
+        : `<img src="${homeTeam.flag}" class="bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
 
     const awayFlagHtml = isAwayPlaceholder
-        ? `<div class="flag-placeholder bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}')"></div>`
-        : `<img src="${awayTeam.flag}" class="bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
+        ? `<div class="flag-placeholder bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')"></div>`
+        : `<img src="${awayTeam.flag}" class="bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
 
     return `
         <div class="bracket-match-card" onclick="showMatchDetails('${match.id}')">
