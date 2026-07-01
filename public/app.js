@@ -227,10 +227,25 @@ function handleResponsiveLayout() {
 function setupHamburger() {
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const navTabs = document.getElementById('nav-tabs');
+    const backdrop = document.getElementById('menu-backdrop');
+    
     if (hamburgerBtn && navTabs) {
+        const toggleMenu = (open) => {
+            if (open) {
+                navTabs.classList.add('open');
+                if (backdrop) backdrop.classList.add('open');
+                document.body.classList.add('menu-open');
+            } else {
+                navTabs.classList.remove('open');
+                if (backdrop) backdrop.classList.remove('open');
+                document.body.classList.remove('menu-open');
+            }
+        };
+
         hamburgerBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            navTabs.classList.toggle('open');
+            const isOpen = navTabs.classList.contains('open');
+            toggleMenu(!isOpen);
         });
         
         // Fechar ao clicar no botão 'X' de fechar a lateral
@@ -238,7 +253,14 @@ function setupHamburger() {
         if (closeBtn) {
             closeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                navTabs.classList.remove('open');
+                toggleMenu(false);
+            });
+        }
+
+        // Fechar ao clicar no backdrop
+        if (backdrop) {
+            backdrop.addEventListener('click', () => {
+                toggleMenu(false);
             });
         }
         
@@ -246,14 +268,14 @@ function setupHamburger() {
         const tabBtns = navTabs.querySelectorAll('.tab-btn');
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                navTabs.classList.remove('open');
+                toggleMenu(false);
             });
         });
 
         // Fechar ao clicar fora
         document.addEventListener('click', (e) => {
             if (!navTabs.contains(e.target) && e.target !== hamburgerBtn) {
-                navTabs.classList.remove('open');
+                toggleMenu(false);
             }
         });
     }
