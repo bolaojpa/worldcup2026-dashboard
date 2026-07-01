@@ -520,9 +520,14 @@ function renderGroups() {
                         <img src="${team.flag}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
                         ${team.name_en}
                     </td>
-                    <td>${t.pts || 0}</td>
+                    <td><strong>${t.pts || 0}</strong></td>
+                    <td>${t.mp || 0}</td>
+                    <td>${t.w || 0}</td>
+                    <td>${t.d || 0}</td>
+                    <td>${t.l || 0}</td>
                     <td>${t.gf || 0}</td>
                     <td>${t.ga || 0}</td>
+                    <td>${t.gd || 0}</td>
                 </tr>
             `;
         });
@@ -534,8 +539,13 @@ function renderGroups() {
                     <tr>
                         <th>Seleção</th>
                         <th>Pts</th>
+                        <th>J</th>
+                        <th>V</th>
+                        <th>E</th>
+                        <th>D</th>
                         <th>GP</th>
                         <th>GC</th>
+                        <th>SG</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -550,38 +560,113 @@ function renderGroups() {
 function renderTeams() {
     const container = document.getElementById('teams-grid');
     container.innerHTML = '';
-    
+
+    // Group teams by group name
+    const grouped = {};
     state.teams.forEach(team => {
-        const card = document.createElement('div');
-        card.className = 'glass-card';
-        card.style.display = 'flex';
-        card.style.alignItems = 'center';
-        card.style.gap = '1rem';
-        
-        card.innerHTML = `
-            <img src="${team.flag}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glass-border);" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-            <div>
-                <h3 style="margin-bottom: 0.2rem;">${team.name_en}</h3>
-                <span style="font-size: 0.85rem; color: var(--text-secondary)">Grupo ${team.groups} | Código: ${team.fifa_code}</span>
-            </div>
-        `;
-        container.appendChild(card);
+        const gName = team.groups || 'Outros';
+        if (!grouped[gName]) grouped[gName] = [];
+        grouped[gName].push(team);
+    });
+
+    // Sort group names (A-L)
+    const sortedGroups = Object.keys(grouped).sort();
+
+    sortedGroups.forEach(gName => {
+        const groupSection = document.createElement('div');
+        groupSection.style.gridColumn = '1/-1';
+        groupSection.style.marginTop = '1.5rem';
+        groupSection.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+        groupSection.style.paddingBottom = '0.5rem';
+        groupSection.innerHTML = `<h3 style="font-weight: 800; letter-spacing: 1px; color: var(--accent-color)">GRUPO ${gName}</h3>`;
+        container.appendChild(groupSection);
+
+        grouped[gName].forEach(team => {
+            const card = document.createElement('div');
+            card.className = 'glass-card';
+            card.style.display = 'flex';
+            card.style.alignItems = 'center';
+            card.style.gap = '1rem';
+            card.style.padding = '1rem';
+            card.style.transition = 'transform 0.2s ease, border-color 0.2s ease';
+            
+            card.innerHTML = `
+                <img src="${team.flag}" style="width: 50px; height: 35px; border-radius: 4px; object-fit: cover; border: 1px solid var(--glass-border); box-shadow: 0 2px 5px rgba(0,0,0,0.3);" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                <div>
+                    <h4 style="font-weight: 800; font-size: 1rem; margin-bottom: 0.15rem;">${team.name_en}</h4>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary)">Código FIFA: <strong>${team.fifa_code}</strong></span>
+                </div>
+            `;
+            container.appendChild(card);
+        });
     });
 }
 
 function renderStadiums() {
     const container = document.getElementById('stadiums-grid');
     container.innerHTML = '';
-    
+
+    // Calculate Stats
+    const totalStadiums = state.stadiums.length;
+    const totalCapacity = state.stadiums.reduce((acc, curr) => acc + (parseInt(curr.capacity) || 0), 0);
+    const countryDistribution = {};
+    state.stadiums.forEach(s => {
+        const country = s.country_en || 'Desconhecido';
+        countryDistribution[country] = (countryDistribution[country] || 0) + 1;
+    });
+
+    // Render Stats Card
+    const statsCard = document.createElement('div');
+    statsCard.className = 'glass-card';
+    statsCard.style.gridColumn = '1/-1';
+    statsCard.style.background = 'linear-gradient(135deg, rgba(56, 189, 248, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%)';
+    statsCard.style.border = '1px solid rgba(56, 189, 248, 0.2)';
+    statsCard.style.padding = '1.5rem 2rem';
+    statsCard.style.display = 'grid';
+    statsCard.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+    statsCard.style.gap = '1.5rem';
+    statsCard.style.marginBottom = '1rem';
+
+    statsCard.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800; letter-spacing:1px">Total de Sedes</span>
+            <span style="font-size:1.8rem; font-weight:800; color:var(--accent-color)">${totalStadiums} Estádios</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800; letter-spacing:1px">Capacidade Total</span>
+            <span style="font-size:1.8rem; font-weight:800; color:#fff">${totalCapacity.toLocaleString('pt-BR')} assentos</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800; letter-spacing:1px">Distribuição</span>
+            <span style="font-size:1rem; font-weight:600; color:var(--text-primary); margin-top:0.3rem">
+                🇺🇸 EUA: ${countryDistribution['United States'] || 0} | 🇲🇽 MEX: ${countryDistribution['Mexico'] || 0} | 🇨🇦 CAN: ${countryDistribution['Canada'] || 0}
+            </span>
+        </div>
+    `;
+    container.appendChild(statsCard);
+
+    // Render individual stadiums
     state.stadiums.forEach(stadium => {
         const card = document.createElement('div');
         card.className = 'glass-card';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.justifyContent = 'space-between';
+        card.style.transition = 'transform 0.2s ease, border-color 0.2s ease';
+        
+        const flagEmoji = stadium.country_en === 'United States' ? '🇺🇸' : (stadium.country_en === 'Mexico' ? '🇲🇽' : '🇨🇦');
+
         card.innerHTML = `
-            <h3 style="color: var(--accent-color); margin-bottom: 0.5rem">${stadium.name_en}</h3>
-            <div style="font-size: 0.9rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.3rem">
-                <span><i class="fa-solid fa-location-dot"></i> ${stadium.city_en}, ${stadium.country_en}</span>
-                <span><i class="fa-solid fa-users"></i> Capacidade: ${stadium.capacity ? stadium.capacity.toLocaleString() : 'N/A'}</span>
-                <span><i class="fa-solid fa-futbol"></i> Nome FIFA: ${stadium.fifa_name}</span>
+            <div>
+                <h3 style="color: var(--accent-color); font-weight: 800; font-size: 1.15rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                    ${stadium.name_en}
+                    <span style="font-size:1.2rem" title="${stadium.country_en}">${flagEmoji}</span>
+                </h3>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.5rem">
+                    <span><i class="fa-solid fa-location-dot" style="width:16px; color:var(--accent-color)"></i> Local: <strong>${stadium.city_en}</strong></span>
+                    <span><i class="fa-solid fa-users" style="width:16px; color:var(--accent-color)"></i> Capacidade: <strong>${stadium.capacity ? stadium.capacity.toLocaleString('pt-BR') : 'N/A'}</strong></span>
+                    <span><i class="fa-solid fa-futbol" style="width:16px; color:var(--accent-color)"></i> Nome FIFA: <strong>${stadium.fifa_name}</strong></span>
+                </div>
             </div>
         `;
         container.appendChild(card);
