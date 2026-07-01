@@ -676,13 +676,7 @@ body {
 }
 
 .details-stage-info {
-    text-align: center;
-    font-size: 0.85rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: var(--accent-color);
-    text-transform: uppercase;
-    margin-bottom: 2rem;
+    display: none;
 }
 
 .details-teams {
@@ -709,21 +703,21 @@ body {
 }
 
 .details-team-name {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    text-align: center;
+    display: none;
 }
 
 .details-team-code {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    letter-spacing: 1px;
+    display: none;
 }
 
 .details-team-mobile-fallback {
-    display: none;
+    display: inline-block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+    margin-top: 0.25rem;
+    text-align: center;
 }
 
 .details-status-badge {
