@@ -137,6 +137,15 @@ function setupHamburger() {
             navTabs.classList.toggle('open');
         });
         
+        // Fechar ao clicar no botão 'X' de fechar a lateral
+        const closeBtn = navTabs.querySelector('.drawer-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navTabs.classList.remove('open');
+            });
+        }
+        
         // Fechar ao clicar em qualquer aba
         const tabBtns = navTabs.querySelectorAll('.tab-btn');
         tabBtns.forEach(btn => {
@@ -610,14 +619,16 @@ function renderMatches() {
                     <div class="match-list-team ${homeClass}">
                         <div class="match-team-info">
                             <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-                            <span>${homeTeam.name_en}</span>
+                            <span class="team-name-desktop">${homeTeam.name_en}</span>
+                            <span class="team-name-mobile">${homeTeam.fifa_code || "TBD"}</span>
                         </div>
                         <div class="match-list-score">${homeScore}</div>
                     </div>
                     <div class="match-list-team ${awayClass}">
                         <div class="match-team-info">
                             <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-                            <span>${awayTeam.name_en}</span>
+                            <span class="team-name-desktop">${awayTeam.name_en}</span>
+                            <span class="team-name-mobile">${awayTeam.fifa_code || "TBD"}</span>
                         </div>
                         <div class="match-list-score">${awayScore}</div>
                     </div>
