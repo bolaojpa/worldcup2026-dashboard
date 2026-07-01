@@ -126,6 +126,7 @@ async function init() {
             }
         }
         renderGroups();
+        renderBracket();
     }, 10000);
 }
 
@@ -215,6 +216,7 @@ function renderAll() {
     renderGroups();
     renderTeams();
     renderStadiums();
+    renderBracket();
 }
 
 function showMatchDetails(matchId) {
@@ -738,6 +740,187 @@ function renderStadiums() {
             </div>
         `;
         container.appendChild(card);
+    });
+}
+
+function renderBracketMatch(matchId, label) {
+    const match = state.matches.find(m => m.id == matchId);
+    if (!match) {
+        return `
+            <div class="bracket-match-card placeholder">
+                <div class="bracket-match-header">Jogo ${matchId}</div>
+                <div class="bracket-team-row">
+                    <span style="color:var(--text-secondary); font-size:0.75rem">A definir</span>
+                </div>
+                <div class="bracket-team-row">
+                    <span style="color:var(--text-secondary); font-size:0.75rem">A definir</span>
+                </div>
+            </div>
+        `;
+    }
+
+    const homeTeam = getTeamDetails(match.home_team_id, match.home_team_id === "0");
+    const awayTeam = getTeamDetails(match.away_team_id, match.away_team_id === "0");
+
+    if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = match.home_team_label;
+    if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = match.away_team_label;
+
+    const isHomeWinner = match.finished === "TRUE" && (match.winner_team_id == match.home_team_id || (match.winner_team_id === null && parseInt(match.home_score) > parseInt(match.away_score)));
+    const isAwayWinner = match.finished === "TRUE" && (match.winner_team_id == match.away_team_id || (match.winner_team_id === null && parseInt(match.away_score) > parseInt(match.home_score)));
+
+    const homeScore = match.finished === "TRUE" || match.time_elapsed !== "notstarted" ? match.home_score : "";
+    const awayScore = match.finished === "TRUE" || match.time_elapsed !== "notstarted" ? match.away_score : "";
+
+    const homePen = match.home_penalty_score ? `(${match.home_penalty_score})` : '';
+    const awayPen = match.away_penalty_score ? `(${match.away_penalty_score})` : '';
+
+    const statusText = match.finished === "TRUE" ? "Fim" : (match.time_elapsed !== "notstarted" ? "Ao Vivo" : match.local_date.split(" ")[1] || "");
+
+    return `
+        <div class="bracket-match-card" onclick="showMatchDetails('${match.id}')">
+            <div class="bracket-match-header">
+                <span>J${match.id} - ${label}</span>
+                <span style="color:var(--accent-color); font-weight:800">${statusText}</span>
+            </div>
+            <div class="bracket-team-row ${isHomeWinner ? 'winner' : ''}">
+                <div class="bracket-team-info">
+                    <img src="${homeTeam.flag}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                    <span title="${homeTeam.name_en}">${homeTeam.name_en}</span>
+                </div>
+                <div class="bracket-team-score">
+                    ${homeScore} <span class="penalties">${homePen}</span>
+                </div>
+            </div>
+            <div class="bracket-team-row ${isAwayWinner ? 'winner' : ''}">
+                <div class="bracket-team-info">
+                    <img src="${awayTeam.flag}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                    <span title="${awayTeam.name_en}">${awayTeam.name_en}</span>
+                </div>
+                <div class="bracket-team-score">
+                    ${awayScore} <span class="penalties">${awayPen}</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderBracket() {
+    const container = document.getElementById('bracket-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const columnsData = [
+        {
+            class: 'r32-left',
+            title: '16 avos (Esquerda)',
+            matches: [
+                { id: 74, label: '32 avos' },
+                { id: 77, label: '32 avos' },
+                { id: 73, label: '32 avos' },
+                { id: 75, label: '32 avos' },
+                { id: 83, label: '32 avos' },
+                { id: 84, label: '32 avos' },
+                { id: 81, label: '32 avos' },
+                { id: 82, label: '32 avos' }
+            ]
+        },
+        {
+            class: 'r16-left',
+            title: 'Oitavas',
+            matches: [
+                { id: 89, label: 'Oitavas' },
+                { id: 90, label: 'Oitavas' },
+                { id: 93, label: 'Oitavas' },
+                { id: 94, label: 'Oitavas' }
+            ]
+        },
+        {
+            class: 'qf-left',
+            title: 'Quartas',
+            matches: [
+                { id: 97, label: 'Quartas' },
+                { id: 98, label: 'Quartas' }
+            ]
+        },
+        {
+            class: 'center-column',
+            title: 'Finais',
+            isCenter: true,
+            matches: [
+                { id: 101, label: 'Semifinal 1' },
+                { id: 104, label: 'Grande Final' },
+                { id: 103, label: 'Disputa 3º Lugar' },
+                { id: 102, label: 'Semifinal 2' }
+            ]
+        },
+        {
+            class: 'qf-right',
+            title: 'Quartas',
+            matches: [
+                { id: 99, label: 'Quartas' },
+                { id: 100, label: 'Quartas' }
+            ]
+        },
+        {
+            class: 'r16-right',
+            title: 'Oitavas',
+            matches: [
+                { id: 91, label: 'Oitavas' },
+                { id: 92, label: 'Oitavas' },
+                { id: 95, label: 'Oitavas' },
+                { id: 96, label: 'Oitavas' }
+            ]
+        },
+        {
+            class: 'r32-right',
+            title: '16 avos (Direita)',
+            matches: [
+                { id: 76, label: '32 avos' },
+                { id: 78, label: '32 avos' },
+                { id: 79, label: '32 avos' },
+                { id: 80, label: '32 avos' },
+                { id: 86, label: '32 avos' },
+                { id: 88, label: '32 avos' },
+                { id: 85, label: '32 avos' },
+                { id: 87, label: '32 avos' }
+            ]
+        }
+    ];
+
+    columnsData.forEach(col => {
+        const colDiv = document.createElement('div');
+        colDiv.className = `bracket-column ${col.class}`;
+        
+        if (col.isCenter) {
+            const semi1 = col.matches.find(m => m.id === 101);
+            const finalMatch = col.matches.find(m => m.id === 104);
+            const thirdPlace = col.matches.find(m => m.id === 103);
+            const semi2 = col.matches.find(m => m.id === 102);
+
+            colDiv.innerHTML = `
+                <div style="display:flex; flex-direction:column; gap:1rem; align-items:center;">
+                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800; margin-bottom:-0.5rem">Semifinais</div>
+                    <div style="display:flex; gap:1.5rem;">
+                        ${renderBracketMatch(semi1.id, semi1.label)}
+                        ${renderBracketMatch(semi2.id, semi2.label)}
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:center; border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 1rem; background: rgba(56, 189, 248, 0.03);">
+                    <div style="font-size:0.85rem; text-transform:uppercase; color:var(--accent-color); font-weight:800; letter-spacing:1px"><i class="fa-solid fa-trophy"></i> Final</div>
+                    ${renderBracketMatch(finalMatch.id, finalMatch.label)}
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:center; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem; background: rgba(255,255,255,0.01);">
+                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800">Decisão 3º Lugar</div>
+                    ${renderBracketMatch(thirdPlace.id, thirdPlace.label)}
+                </div>
+            `;
+        } else {
+            col.matches.forEach(m => {
+                const cardHtml = renderBracketMatch(m.id, m.label);
+                colDiv.innerHTML += cardHtml;
+            });
+        }
+        container.appendChild(colDiv);
     });
 }
 
