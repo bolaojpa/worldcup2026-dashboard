@@ -498,6 +498,25 @@ function renderMatches() {
             const homeScore = !hasStarted ? '' : ((match.home_score === null || match.home_score === 'null' || match.home_score === undefined) ? '0' : match.home_score);
             const awayScore = !hasStarted ? '' : ((match.away_score === null || match.away_score === 'null' || match.away_score === undefined) ? '0' : match.away_score);
 
+            // Determinar o vencedor se o jogo terminou
+            let isHomeWinner = false;
+            let isAwayWinner = false;
+            if (match.finished === "TRUE") {
+                const homeScoreNum = parseInt(match.home_score) || 0;
+                const awayScoreNum = parseInt(match.away_score) || 0;
+                
+                if (match.winner_team_id && match.winner_team_id !== "0") {
+                    if (match.winner_team_id == match.home_team_id) isHomeWinner = true;
+                    else if (match.winner_team_id == match.away_team_id) isAwayWinner = true;
+                } else {
+                    if (homeScoreNum > awayScoreNum) isHomeWinner = true;
+                    else if (awayScoreNum > homeScoreNum) isAwayWinner = true;
+                }
+            }
+
+            const homeClass = isHomeWinner ? 'winner' : (isAwayWinner ? 'loser' : '');
+            const awayClass = isAwayWinner ? 'winner' : (isHomeWinner ? 'loser' : '');
+
             const matchItem = document.createElement('div');
             matchItem.className = 'match-list-item';
             matchItem.addEventListener('click', () => showMatchDetails(match.id));
@@ -508,14 +527,14 @@ function renderMatches() {
                     <span class="time">${timeStr}</span>
                 </div>
                 <div class="match-list-teams">
-                    <div class="match-list-team">
+                    <div class="match-list-team ${homeClass}">
                         <div class="match-team-info">
                             <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
                             <span>${homeTeam.name_en}</span>
                         </div>
                         <div class="match-list-score">${homeScore}</div>
                     </div>
-                    <div class="match-list-team">
+                    <div class="match-list-team ${awayClass}">
                         <div class="match-team-info">
                             <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
                             <span>${awayTeam.name_en}</span>
@@ -768,6 +787,9 @@ function renderBracketMatch(matchId, label) {
     const isHomeWinner = match.finished === "TRUE" && (match.winner_team_id == match.home_team_id || (match.winner_team_id === null && parseInt(match.home_score) > parseInt(match.away_score)));
     const isAwayWinner = match.finished === "TRUE" && (match.winner_team_id == match.away_team_id || (match.winner_team_id === null && parseInt(match.away_score) > parseInt(match.home_score)));
 
+    const homeClass = isHomeWinner ? 'winner' : (isAwayWinner ? 'loser' : '');
+    const awayClass = isAwayWinner ? 'winner' : (isHomeWinner ? 'loser' : '');
+
     const homeScore = match.finished === "TRUE" || match.time_elapsed !== "notstarted" ? match.home_score : "";
     const awayScore = match.finished === "TRUE" || match.time_elapsed !== "notstarted" ? match.away_score : "";
 
@@ -782,7 +804,7 @@ function renderBracketMatch(matchId, label) {
                 <span>J${match.id} - ${label}</span>
                 <span style="color:var(--accent-color); font-weight:800">${statusText}</span>
             </div>
-            <div class="bracket-team-row ${isHomeWinner ? 'winner' : ''}">
+            <div class="bracket-team-row ${homeClass}">
                 <div class="bracket-team-info">
                     <img src="${homeTeam.flag}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
                     <span title="${homeTeam.name_en}">${homeTeam.name_en}</span>
@@ -791,7 +813,7 @@ function renderBracketMatch(matchId, label) {
                     ${homeScore} <span class="penalties">${homePen}</span>
                 </div>
             </div>
-            <div class="bracket-team-row ${isAwayWinner ? 'winner' : ''}">
+            <div class="bracket-team-row ${awayClass}">
                 <div class="bracket-team-info">
                     <img src="${awayTeam.flag}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
                     <span title="${awayTeam.name_en}">${awayTeam.name_en}</span>

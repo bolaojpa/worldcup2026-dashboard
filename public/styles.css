@@ -1002,3 +1002,19 @@ body {
     color: var(--text-secondary);
     margin-left: 0.25rem;
 }
+
+/* Ganhador/Perdedor com contraste */
+.match-list-team.loser {
+    opacity: 0.45;
+}
+.match-list-team.winner {
+    font-weight: 800;
+    color: #fff;
+}
+.bracket-team-row.loser {
+    opacity: 0.45;
+}
+.bracket-team-row.winner {
+    font-weight: 800;
+    color: #fff;
+}
