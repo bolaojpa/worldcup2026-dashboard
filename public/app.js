@@ -424,8 +424,6 @@ function showMatchDetails(matchId) {
             <div class="details-teams">
                 <div class="details-team">
                     <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-                    <span class="details-team-name">${homeTeam.name_en}</span>
-                    <span class="details-team-code">${homeTeam.fifa_code || ''}</span>
                     <span class="details-team-mobile-fallback">${homeTeam.fifa_code || homeTeam.name_en}</span>
                 </div>
                 <div class="details-score-area">
@@ -436,8 +434,6 @@ function showMatchDetails(matchId) {
                 </div>
                 <div class="details-team">
                     <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-                    <span class="details-team-name">${awayTeam.name_en}</span>
-                    <span class="details-team-code">${awayTeam.fifa_code || ''}</span>
                     <span class="details-team-mobile-fallback">${awayTeam.fifa_code || awayTeam.name_en}</span>
                 </div>
             </div>
