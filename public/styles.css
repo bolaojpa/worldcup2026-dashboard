@@ -722,6 +722,10 @@ body {
     letter-spacing: 1px;
 }
 
+.details-team-mobile-fallback {
+    display: none;
+}
+
 .details-score-area {
     display: flex;
     flex-direction: column;
@@ -1396,6 +1400,25 @@ body {
         color: var(--text-primary) !important;
         width: auto !important;
         text-align: right !important;
+    }
+
+    /* Style changes for match details modal on mobile */
+    .details-team-name {
+        display: none !important;
+    }
+
+    .details-team-code {
+        display: none !important;
+    }
+
+    .details-team-mobile-fallback {
+        display: inline-block !important;
+        font-size: 1.5rem !important;
+        font-weight: 800 !important;
+        color: var(--text-primary) !important;
+        letter-spacing: 0.5px !important;
+        margin-top: 0.25rem !important;
+        text-align: center !important;
     }
 }
 
