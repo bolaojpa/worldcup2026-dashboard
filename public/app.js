@@ -879,12 +879,12 @@ function renderBracketMatch(matchId, label) {
     const isAwayPlaceholder = !match.away_team_id || match.away_team_id === "0";
 
     const homeFlagHtml = isHomePlaceholder
-        ? `<div class="flag-placeholder bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')"></div>`
-        : `<img src="${homeTeam.flag}" class="bracket-flag" title="${homeTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
+        ? `<div class="flag-placeholder bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')"></div>`
+        : `<img src="${homeTeam.flag}" class="bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
 
     const awayFlagHtml = isAwayPlaceholder
-        ? `<div class="flag-placeholder bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')"></div>`
-        : `<img src="${awayTeam.flag}" class="bracket-flag" title="${awayTeam.name_en}" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
+        ? `<div class="flag-placeholder bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')"></div>`
+        : `<img src="${awayTeam.flag}" class="bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
 
     return `
         <div class="bracket-match-card" onclick="showMatchDetails('${match.id}')">
