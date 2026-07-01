@@ -213,6 +213,45 @@ function renderAll() {
     renderBracket();
 }
 
+function determineWinner(match) {
+    if (match.finished !== "TRUE") return { isHomeWinner: false, isAwayWinner: false, isDraw: false };
+
+    const homeScoreNum = parseInt(match.home_score) || 0;
+    const awayScoreNum = parseInt(match.away_score) || 0;
+    const homePenNum = parseInt(match.home_penalty_score) || 0;
+    const awayPenNum = parseInt(match.away_penalty_score) || 0;
+    
+    // 1. Verificar winner_team_id
+    if (match.winner_team_id && match.winner_team_id !== "0" && match.winner_team_id !== "null") {
+        if (match.winner_team_id == match.home_team_id) {
+            return { isHomeWinner: true, isAwayWinner: false, isDraw: false };
+        }
+        if (match.winner_team_id == match.away_team_id) {
+            return { isHomeWinner: false, isAwayWinner: true, isDraw: false };
+        }
+    }
+
+    // 2. Verificar pênaltis
+    if (homePenNum !== 0 || awayPenNum !== 0) {
+        if (homePenNum > awayPenNum) {
+            return { isHomeWinner: true, isAwayWinner: false, isDraw: false };
+        }
+        if (awayPenNum > homePenNum) {
+            return { isHomeWinner: false, isAwayWinner: true, isDraw: false };
+        }
+    }
+
+    // 3. Verificar tempo normal
+    if (homeScoreNum > awayScoreNum) {
+        return { isHomeWinner: true, isAwayWinner: false, isDraw: false };
+    }
+    if (awayScoreNum > homeScoreNum) {
+        return { isHomeWinner: false, isAwayWinner: true, isDraw: false };
+    }
+
+    return { isHomeWinner: false, isAwayWinner: false, isDraw: true };
+}
+
 function showMatchDetails(matchId) {
     state.activeDetailsMatchId = matchId; // Salva o ID ativo para auto-refresh
     const match = state.matches.find(m => m.id == matchId);
@@ -502,20 +541,7 @@ function renderMatches() {
             const awayScore = !hasStarted ? '' : ((match.away_score === null || match.away_score === 'null' || match.away_score === undefined) ? '0' : match.away_score);
 
             // Determinar o vencedor se o jogo terminou
-            let isHomeWinner = false;
-            let isAwayWinner = false;
-            if (match.finished === "TRUE") {
-                const homeScoreNum = parseInt(match.home_score) || 0;
-                const awayScoreNum = parseInt(match.away_score) || 0;
-                
-                if (match.winner_team_id && match.winner_team_id !== "0") {
-                    if (match.winner_team_id == match.home_team_id) isHomeWinner = true;
-                    else if (match.winner_team_id == match.away_team_id) isAwayWinner = true;
-                } else {
-                    if (homeScoreNum > awayScoreNum) isHomeWinner = true;
-                    else if (awayScoreNum > homeScoreNum) isAwayWinner = true;
-                }
-            }
+            const { isHomeWinner, isAwayWinner } = determineWinner(match);
 
             const homeClass = isHomeWinner ? 'winner' : (isAwayWinner ? 'loser' : '');
             const awayClass = isAwayWinner ? 'winner' : (isHomeWinner ? 'loser' : '');
@@ -828,8 +854,7 @@ function renderBracketMatch(matchId, label) {
     if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = match.home_team_label;
     if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = match.away_team_label;
 
-    const isHomeWinner = match.finished === "TRUE" && (match.winner_team_id == match.home_team_id || (match.winner_team_id === null && parseInt(match.home_score) > parseInt(match.away_score)));
-    const isAwayWinner = match.finished === "TRUE" && (match.winner_team_id == match.away_team_id || (match.winner_team_id === null && parseInt(match.away_score) > parseInt(match.home_score)));
+    const { isHomeWinner, isAwayWinner } = determineWinner(match);
 
     const homeClass = isHomeWinner ? 'winner' : (isAwayWinner ? 'loser' : '');
     const awayClass = isAwayWinner ? 'winner' : (isHomeWinner ? 'loser' : '');
