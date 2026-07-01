@@ -5,7 +5,8 @@ const state = {
     groups: [],
     teams: [],
     stadiums: [],
-    activeFilter: 'all'
+    activeFilter: 'today',
+    visibleMatchesCount: 15
 };
 
 // Elements
@@ -106,6 +107,7 @@ function parseScorers(scorers) {
 async function init() {
     setupTabs();
     setupFilters();
+    setupDetailsView();
     await fetchAllData();
     renderAll();
     spinner.style.display = 'none';
@@ -113,7 +115,15 @@ async function init() {
     // Auto-refresh a cada 10 segundos para ver os placares mudarem se estiverem rodando
     setInterval(async () => {
         await fetchAllData(true);
-        renderMatches();
+        // Se a tela de detalhes não estiver aberta, atualiza a lista de partidas
+        if (document.getElementById('match-details-view').style.display !== 'block') {
+            renderMatches();
+        } else {
+            // Se estiver aberta, atualiza a tela de detalhes
+            if (state.activeDetailsMatchId) {
+                showMatchDetails(state.activeDetailsMatchId);
+            }
+        }
         renderGroups();
     }, 10000);
 }
@@ -126,6 +136,10 @@ function setupTabs() {
             
             btn.classList.add('active');
             document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+
+            // Hide details view when shifting tabs
+            document.getElementById('match-details-view').style.display = 'none';
+            document.getElementById('matches-tab').style.display = 'block';
         });
     });
 }
@@ -137,9 +151,25 @@ function setupFilters() {
             filterBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             state.activeFilter = btn.dataset.filter;
+            state.visibleMatchesCount = 15; // Reset pagination
+            
+            // Hide details view when changing filter
+            document.getElementById('match-details-view').style.display = 'none';
+            document.getElementById('matches-tab').style.display = 'block';
+
             renderMatches();
         });
     });
+}
+
+function setupDetailsView() {
+    const backBtn = document.getElementById('back-to-list-btn');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            document.getElementById('match-details-view').style.display = 'none';
+            document.getElementById('matches-tab').style.display = 'block';
+        });
+    }
 }
 
 async function fetchAllData(silent = false) {
@@ -183,12 +213,138 @@ function renderAll() {
     renderStadiums();
 }
 
+function showMatchDetails(matchId) {
+    state.activeDetailsMatchId = matchId; // Salva o ID ativo para auto-refresh
+    const match = state.matches.find(m => m.id == matchId);
+    if (!match) return;
+
+    document.getElementById('matches-tab').style.display = 'none';
+    document.getElementById('match-details-view').style.display = 'block';
+
+    const stageTitle = match.type === 'group' ? 'Fase de Grupos' : (phaseTranslations[match.type] || 'Mata-Mata');
+    document.getElementById('details-stage-title').innerText = stageTitle;
+
+    const homeTeam = getTeamDetails(match.home_team_id, match.home_team_id === "0");
+    const awayTeam = getTeamDetails(match.away_team_id, match.away_team_id === "0");
+    
+    if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = match.home_team_label;
+    if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = match.away_team_label;
+
+    // Date
+    const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
+    const dateStr = isNaN(dateObj.getTime()) ? match.local_date : dateObj.toLocaleString('pt-BR', { 
+        weekday: 'long',
+        day: '2-digit', 
+        month: 'long', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZone: 'America/Sao_Paulo'
+    });
+
+    const stadium = state.stadiums.find(s => s.id == match.stadium_id) || { name_en: 'Estádio Desconhecido', city_en: 'N/A', capacity: 0 };
+
+    // Status Badge
+    let statusHtml = '';
+    if (match.finished === "TRUE") {
+        statusHtml = `<span class="badge finished">Finalizado</span>`;
+    } else if (match.time_elapsed === "Intervalo") {
+        statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> Intervalo</span>`;
+    } else if (match.time_elapsed !== "notstarted") {
+        statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> AO VIVO - ${match.time_elapsed}</span>`;
+    } else {
+        statusHtml = `<span class="badge upcoming">Não Iniciado</span>`;
+    }
+
+    // Scorers
+    const homeScorers = parseScorers(match.home_scorers);
+    const awayScorers = parseScorers(match.away_scorers);
+    
+    let scorersHtml = '';
+    if (homeScorers.length > 0 || awayScorers.length > 0) {
+        const homeList = homeScorers.map(s => `<div>${s} ⚽</div>`).join('');
+        const awayList = awayScorers.map(s => `<div>⚽ ${s}</div>`).join('');
+        scorersHtml = `
+            <div class="details-scorers-card">
+                <div class="scorers-list home-scorers-list">${homeList}</div>
+                <div class="scorers-icon"><i class="fa-solid fa-futbol"></i></div>
+                <div class="scorers-list away-scorers-list">${awayList}</div>
+            </div>
+        `;
+    }
+
+    const infoHtml = `
+        <div class="details-info-section">
+            <div class="info-row">
+                <i class="fa-regular fa-calendar-days"></i>
+                <div class="info-row-content">
+                    <span class="info-row-label">Horário de Brasília</span>
+                    <span class="info-row-value" style="text-transform: capitalize;">${dateStr}</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <i class="fa-solid fa-location-dot"></i>
+                <div class="info-row-content">
+                    <span class="info-row-label">Estádio & Localização</span>
+                    <span class="info-row-value">${stadium.name_en} (${stadium.city_en})</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <i class="fa-solid fa-sitemap"></i>
+                <div class="info-row-content">
+                    <span class="info-row-label">Fase da Competição</span>
+                    <span class="info-row-value">${match.type === 'group' ? `Fase de Grupos · Rodada ${match.matchday}` : (phaseTranslations[match.type] || 'Mata-Mata')}</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('match-details-content').innerHTML = `
+        <div class="match-details-card">
+            <div class="details-stage-info">${match.type === 'group' ? `Grupo ${match.group || ''}` : (phaseTranslations[match.type] || 'Mata-Mata')}</div>
+            <div class="details-teams">
+                <div class="details-team">
+                    <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                    <span class="details-team-name">${homeTeam.name_en}</span>
+                    <span class="details-team-code">${homeTeam.fifa_code || ''}</span>
+                </div>
+                <div class="details-score-area">
+                    <div class="details-score">
+                        ${match.time_elapsed === 'notstarted' ? 'VS' : `${match.home_score} - ${match.away_score}`}
+                    </div>
+                    <div class="details-status-badge">
+                        ${statusHtml}
+                    </div>
+                </div>
+                <div class="details-team">
+                    <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                    <span class="details-team-name">${awayTeam.name_en}</span>
+                    <span class="details-team-code">${awayTeam.fifa_code || ''}</span>
+                </div>
+            </div>
+        </div>
+        ${scorersHtml}
+        ${infoHtml}
+    `;
+}
+
 function renderMatches() {
-    const container = document.getElementById('matches-grid');
+    const container = document.getElementById('matches-list');
     container.innerHTML = '';
+
+    const paginationArea = document.getElementById('pagination-area');
+    paginationArea.innerHTML = '';
     
     let filteredMatches = state.matches;
-    if (state.activeFilter === 'live') {
+
+    // Filters
+    if (state.activeFilter === 'today') {
+        const todayStr = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+        filteredMatches = state.matches.filter(m => {
+            const dateObj = parseLocalDateToBrasilia(m.local_date, m.stadium_id);
+            const matchDateStr = dateObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+            return matchDateStr === todayStr;
+        });
+    } else if (state.activeFilter === 'live') {
         filteredMatches = state.matches.filter(m => m.finished !== "TRUE" && m.time_elapsed !== "notstarted");
     } else if (state.activeFilter === 'finished') {
         filteredMatches = state.matches.filter(m => m.finished === "TRUE");
@@ -199,128 +355,150 @@ function renderMatches() {
     }
 
     if (filteredMatches.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 3rem 0;">Nenhum jogo encontrado com este filtro.</div>`;
+        if (state.activeFilter === 'today') {
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 3rem 0; font-size: 1.05rem;">Nenhum jogo agendado para hoje.<br><span style="font-size: 0.9rem; opacity: 0.8; display: block; margin-top: 0.5rem">Vá em "Todos os Jogos" para conferir a tabela completa!</span></div>`;
+        } else {
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 3rem 0;">Nenhum jogo encontrado com este filtro.</div>`;
+        }
         return;
     }
+
+    // Sort chronologically by date/time
+    filteredMatches.sort((a, b) => {
+        return parseLocalDateToBrasilia(a.local_date, a.stadium_id) - parseLocalDateToBrasilia(b.local_date, b.stadium_id);
+    });
+
+    // Handle Pagination for non-live and non-today views
+    const shouldPaginate = ['all', 'finished', 'group'].includes(state.activeFilter);
+    const totalCount = filteredMatches.length;
+    let matchesToShow = filteredMatches;
     
-    filteredMatches.forEach(match => {
-        const homeTeam = getTeamDetails(match.home_team_id, match.home_team_id === "0");
-        const awayTeam = getTeamDetails(match.away_team_id, match.away_team_id === "0");
+    if (shouldPaginate) {
+        matchesToShow = filteredMatches.slice(0, state.visibleMatchesCount);
         
-        if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = match.home_team_label;
-        if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = match.away_team_label;
-
-        // Conversão de fuso horário automática para o Horário de Brasília considerando o estádio
-        const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
-        const dateStr = isNaN(dateObj.getTime()) ? match.local_date : dateObj.toLocaleString('pt-BR', { 
-            day: '2-digit', 
-            month: '2-digit', 
-            hour: '2-digit', 
-            minute: '2-digit',
-            timeZone: 'America/Sao_Paulo'
-        });
-        
-        // Verifica se a partida começará nas próximas 3 horas para exibir contagem regressiva
-        const diffMs = dateObj.getTime() - Date.now();
-        const diffMins = Math.floor(diffMs / 60000);
-        const isSoon = diffMs > 0 && diffMins <= 180;
-        let soonText = '';
-        if (isSoon) {
-            if (diffMins < 60) {
-                soonText = `Começa em ${diffMins} min`;
-            } else {
-                const hours = Math.floor(diffMins / 60);
-                const mins = diffMins % 60;
-                soonText = `Começa em ${hours}h ${mins}m`;
-            }
+        if (totalCount > state.visibleMatchesCount) {
+            const loadMoreBtn = document.createElement('button');
+            loadMoreBtn.className = 'load-more-btn';
+            loadMoreBtn.innerText = `Carregar Mais (${totalCount - state.visibleMatchesCount} restantes)`;
+            loadMoreBtn.addEventListener('click', () => {
+                state.visibleMatchesCount += 15;
+                renderMatches();
+            });
+            paginationArea.appendChild(loadMoreBtn);
         }
-        
-        // Find Stadium
-        const stadium = state.stadiums.find(s => s.id == match.stadium_id) || { name_en: 'Estádio Desconhecido' };
-        
-        // Phase string
-        const phase = phaseTranslations[match.type] || (match.group ? `Grupo ${match.group}` : 'Mata-Mata');
-        
-        // Scorers
-        const homeScorers = parseScorers(match.home_scorers);
-        const awayScorers = parseScorers(match.away_scorers);
-        
-        const homeScorersHtml = homeScorers.map(s => `<div>⚽ ${s}</div>`).join('');
-        const awayScorersHtml = awayScorers.map(s => `<div>⚽ ${s}</div>`).join('');
-        
-        // Check if the match has started (either live or finished)
-        const hasStarted = match.time_elapsed !== "notstarted";
+    }
 
-        // Penalties (only show if started, knockout, and actually have numeric/non-null scores)
-        const isPenalty = hasStarted && 
-                          match.home_penalty_score !== null && 
-                          match.home_penalty_score !== 'null' && 
-                          match.home_penalty_score !== undefined && 
-                          match.away_penalty_score !== null && 
-                          match.away_penalty_score !== 'null' && 
-                          match.away_penalty_score !== undefined;
-        const penaltyHtml = isPenalty ? `<div class="penalty-score">(Pên: ${match.home_penalty_score} - ${match.away_penalty_score})</div>` : '';
+    // Grouping
+    const groups = [];
+    let currentGroup = null;
 
-        // Dynamically compute the score text or VS
-        let scoreHtml = '';
-        if (!hasStarted) {
-            scoreHtml = `<div class="score-vs" style="font-size: 1.1rem; font-weight: 600; color: var(--text-secondary); opacity: 0.8; letter-spacing: 2px;">VS</div>`;
+    matchesToShow.forEach(match => {
+        let groupKey = '';
+        if (state.activeFilter === 'knockout') {
+            groupKey = phaseTranslations[match.type] || 'Mata-Mata';
         } else {
-            const homeScore = (match.home_score === null || match.home_score === 'null' || match.home_score === undefined) ? '0' : match.home_score;
-            const awayScore = (match.away_score === null || match.away_score === 'null' || match.away_score === undefined) ? '0' : match.away_score;
-            scoreHtml = `<div class="score">${homeScore} - ${awayScore}</div>`;
+            const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
+            const weekday = dateObj.toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'America/Sao_Paulo' }).substring(0, 3).toUpperCase().replace(/\./g, '');
+            const day = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', timeZone: 'America/Sao_Paulo' });
+            const month = dateObj.toLocaleDateString('pt-BR', { month: 'short', timeZone: 'America/Sao_Paulo' }).substring(0, 3).toUpperCase().replace(/\./g, '');
+            groupKey = `${weekday} ${day} ${month}`;
         }
         
-        // Status Badge
-        let statusHtml = '';
-        if (match.finished === "TRUE") {
-            statusHtml = `<span class="badge finished">Finalizado</span>`;
-        } else if (match.time_elapsed === "Intervalo") {
-            statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> Intervalo</span>`;
-        } else if (match.time_elapsed !== "notstarted") {
-            statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> AO VIVO - ${match.time_elapsed}</span>`;
-        } else if (isSoon) {
-            const timePart = dateStr.split(',')[1] ? dateStr.split(',')[1].trim() : dateStr.split(' ')[1];
-            statusHtml = `<span class="badge upcoming-soon" title="Horário de Brasília: ${dateStr}"><i class="fa-solid fa-hourglass-start"></i> ${soonText} (${timePart})</span>`;
-        } else {
-            statusHtml = `<span class="badge upcoming"><i class="fa-regular fa-clock"></i> ${dateStr}</span>`;
+        if (!currentGroup || currentGroup.header !== groupKey) {
+            currentGroup = { header: groupKey, matches: [] };
+            groups.push(currentGroup);
         }
+        currentGroup.matches.push(match);
+    });
 
-        const card = document.createElement('div');
-        card.className = 'glass-card';
-        card.innerHTML = `
-            <div class="match-header">
-                <span class="badge phase">${phase}</span>
-                <span class="badge matchday">Rodada ${match.matchday || ''}</span>
-            </div>
-            <div class="match-teams-grid">
-                <img class="team-flag home-flag" src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-                
-                <div class="score-container">
-                    ${scoreHtml}
-                    ${penaltyHtml}
-                </div>
-                
-                <img class="team-flag away-flag" src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
-                
-                <span class="team-name home-name">${homeTeam.name_en}</span>
-                <span></span>
-                <span class="team-name away-name">${awayTeam.name_en}</span>
-            </div>
-            <div class="match-scorers">
-                <div class="scorers home-scorers">${homeScorersHtml}</div>
-                <div class="scorers away-scorers">${awayScorersHtml}</div>
-            </div>
-            <div class="match-footer">
-                <div class="stadium-info" title="${stadium.name_en}">
-                    <i class="fa-solid fa-location-dot"></i> ${stadium.name_en}
-                </div>
-                <div class="status-info">
-                    ${statusHtml}
-                </div>
+    // Render grouped matches
+    groups.forEach(group => {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'date-group';
+        
+        groupDiv.innerHTML = `
+            <div class="date-group-header">
+                <h3>${group.header}</h3>
+                <span class="date-group-count">${group.matches.length} ${group.matches.length === 1 ? 'jogo' : 'jogos'}</span>
             </div>
         `;
-        container.appendChild(card);
+
+        group.matches.forEach(match => {
+            const homeTeam = getTeamDetails(match.home_team_id, match.home_team_id === "0");
+            const awayTeam = getTeamDetails(match.away_team_id, match.away_team_id === "0");
+            
+            if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = match.home_team_label;
+            if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = match.away_team_label;
+
+            const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
+            const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+            
+            const diffMs = dateObj.getTime() - Date.now();
+            const diffMins = Math.floor(diffMs / 60000);
+            const isSoon = diffMs > 0 && diffMins <= 180;
+            let soonText = '';
+            if (isSoon) {
+                if (diffMins < 60) {
+                    soonText = `Começa em ${diffMins} min`;
+                } else {
+                    const hours = Math.floor(diffMins / 60);
+                    const mins = diffMins % 60;
+                    soonText = `Começa em ${hours}h ${mins}m`;
+                }
+            }
+
+            const stageText = match.type === 'group' ? (match.group ? `Grupo ${match.group}` : 'Grupo') : (phaseTranslations[match.type] || 'Mata-Mata');
+
+            // Status Badge
+            let statusHtml = '';
+            if (match.finished === "TRUE") {
+                statusHtml = `<span class="badge finished">FT</span>`;
+            } else if (match.time_elapsed === "Intervalo") {
+                statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> INT</span>`;
+            } else if (match.time_elapsed !== "notstarted") {
+                statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${match.time_elapsed}</span>`;
+            } else if (isSoon) {
+                statusHtml = `<span class="badge upcoming-soon" title="${soonText}"><i class="fa-solid fa-hourglass-start"></i> ${timeStr}</span>`;
+            } else {
+                statusHtml = `<span class="badge upcoming"><i class="fa-regular fa-clock"></i> ${timeStr}</span>`;
+            }
+
+            const hasStarted = match.time_elapsed !== "notstarted";
+            const homeScore = !hasStarted ? '' : ((match.home_score === null || match.home_score === 'null' || match.home_score === undefined) ? '0' : match.home_score);
+            const awayScore = !hasStarted ? '' : ((match.away_score === null || match.away_score === 'null' || match.away_score === undefined) ? '0' : match.away_score);
+
+            const matchItem = document.createElement('div');
+            matchItem.className = 'match-list-item';
+            matchItem.addEventListener('click', () => showMatchDetails(match.id));
+
+            matchItem.innerHTML = `
+                <div class="match-list-meta">
+                    <span class="phase" title="${stageText}">${stageText}</span>
+                    <span class="time">${timeStr}</span>
+                </div>
+                <div class="match-list-teams">
+                    <div class="match-list-team">
+                        <div class="match-team-info">
+                            <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                            <span>${homeTeam.name_en}</span>
+                        </div>
+                        <div class="match-list-score">${homeScore}</div>
+                    </div>
+                    <div class="match-list-team">
+                        <div class="match-team-info">
+                            <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                            <span>${awayTeam.name_en}</span>
+                        </div>
+                        <div class="match-list-score">${awayScore}</div>
+                    </div>
+                </div>
+                <div class="match-list-status">
+                    ${statusHtml}
+                </div>
+            `;
+            groupDiv.appendChild(matchItem);
+        });
+        container.appendChild(groupDiv);
     });
 }
 
