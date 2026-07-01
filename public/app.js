@@ -116,17 +116,14 @@ async function init() {
     // Auto-refresh a cada 10 segundos para ver os placares mudarem se estiverem rodando
     setInterval(async () => {
         await fetchAllData(true);
-        // Se a tela de detalhes não estiver aberta, atualiza a lista de partidas
-        if (document.getElementById('match-details-view').style.display !== 'block') {
-            renderMatches();
-        } else {
-            // Se estiver aberta, atualiza a tela de detalhes
-            if (state.activeDetailsMatchId) {
-                showMatchDetails(state.activeDetailsMatchId);
-            }
-        }
+        renderMatches();
         renderGroups();
         renderBracket();
+
+        // Se a tela de detalhes (modal) estiver aberta, atualiza a tela de detalhes
+        if (state.activeDetailsMatchId) {
+            showMatchDetails(state.activeDetailsMatchId);
+        }
     }, 10000);
 }
 
@@ -138,12 +135,6 @@ function setupTabs() {
             
             btn.classList.add('active');
             document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
-
-            // Se clicar na aba "Jogos" superior, garante que exiba a lista de jogos, e não os detalhes
-            if (btn.dataset.tab === 'matches') {
-                document.getElementById('match-details-view').style.display = 'none';
-                document.getElementById('matches-list-view').style.display = 'block';
-            }
         });
     });
 }
@@ -157,10 +148,6 @@ function setupFilters() {
             state.activeFilter = btn.dataset.filter;
             state.selectedGroupFilter = null; // Reseta filtro de grupo específico ao trocar de filtro
             state.visibleMatchesCount = 15; // Reset pagination
-            
-            // Garante que mostre a lista e oculte os detalhes ao trocar de filtro
-            document.getElementById('match-details-view').style.display = 'none';
-            document.getElementById('matches-list-view').style.display = 'block';
 
             renderMatches();
         });
@@ -168,11 +155,18 @@ function setupFilters() {
 }
 
 function setupDetailsView() {
-    const backBtn = document.getElementById('back-to-list-btn');
-    if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            document.getElementById('match-details-view').style.display = 'none';
-            document.getElementById('matches-list-view').style.display = 'block';
+    const modal = document.getElementById('match-details-modal');
+    const closeBtn = document.getElementById('close-modal-btn');
+    if (closeBtn && modal) {
+        const closeModal = () => {
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+            state.activeDetailsMatchId = null; // Limpa ID ativo
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
         });
     }
 }
@@ -224,11 +218,9 @@ function showMatchDetails(matchId) {
     const match = state.matches.find(m => m.id == matchId);
     if (!match) return;
 
-    document.getElementById('matches-list-view').style.display = 'none';
-    document.getElementById('match-details-view').style.display = 'block';
-
-    const stageTitle = match.type === 'group' ? 'Fase de Grupos' : (phaseTranslations[match.type] || 'Mata-Mata');
-    document.getElementById('details-stage-title').innerText = stageTitle;
+    const stageTitle = match.type === 'group' ? (match.group ? `Fase de Grupos - Grupo ${match.group}` : 'Fase de Grupos') : (phaseTranslations[match.type] || 'Mata-Mata');
+    const modalTitleEl = document.getElementById('modal-stage-title');
+    if (modalTitleEl) modalTitleEl.innerText = stageTitle;
 
     const homeTeam = getTeamDetails(match.home_team_id, match.home_team_id === "0");
     const awayTeam = getTeamDetails(match.away_team_id, match.away_team_id === "0");
@@ -304,6 +296,9 @@ function showMatchDetails(matchId) {
         </div>
     `;
 
+    const displayHomeScore = match.time_elapsed === 'notstarted' ? '' : (match.home_score || 0);
+    const displayAwayScore = match.time_elapsed === 'notstarted' ? '' : (match.away_score || 0);
+
     document.getElementById('match-details-content').innerHTML = `
         <div class="match-details-card">
             <div class="details-stage-info">${match.type === 'group' ? `Grupo ${match.group || ''}` : (phaseTranslations[match.type] || 'Mata-Mata')}</div>
@@ -315,8 +310,9 @@ function showMatchDetails(matchId) {
                 </div>
                 <div class="details-score-area">
                     <div class="details-score">
-                        ${match.time_elapsed === 'notstarted' ? 'VS' : `${match.home_score} - ${match.away_score}`}
+                        ${match.time_elapsed === 'notstarted' ? 'VS' : `${displayHomeScore} - ${displayAwayScore}`}
                     </div>
+                    ${match.home_penalty_score ? `<div class="details-penalties" style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">Pênaltis: ${match.home_penalty_score} - ${match.away_penalty_score}</div>` : ''}
                     <div class="details-status-badge">
                         ${statusHtml}
                     </div>
@@ -331,6 +327,12 @@ function showMatchDetails(matchId) {
         ${scorersHtml}
         ${infoHtml}
     `;
+
+    const modal = document.getElementById('match-details-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
 }
 
 function renderMatches() {

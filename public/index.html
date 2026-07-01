@@ -32,30 +32,16 @@
 
             <!-- Matches Tab -->
             <section id="matches-tab" class="tab-content active">
-                <div id="matches-list-view">
-                    <div class="filters-container">
-                        <button class="filter-btn active" data-filter="today">Jogos de Hoje</button>
-                        <button class="filter-btn" data-filter="live"><span class="pulse-dot"></span> Ao Vivo</button>
-                        <button class="filter-btn" data-filter="all">Todos os Jogos</button>
-                        <button class="filter-btn" data-filter="finished">Finalizados</button>
-                        <button class="filter-btn" data-filter="group">Fase de Grupos</button>
-                        <button class="filter-btn" data-filter="knockout">Mata-Mata</button>
-                    </div>
-                    <div class="list-container" id="matches-list"></div>
-                    <div class="pagination-container" id="pagination-area"></div>
+                <div class="filters-container">
+                    <button class="filter-btn active" data-filter="today">Jogos de Hoje</button>
+                    <button class="filter-btn" data-filter="live"><span class="pulse-dot"></span> Ao Vivo</button>
+                    <button class="filter-btn" data-filter="all">Todos os Jogos</button>
+                    <button class="filter-btn" data-filter="finished">Finalizados</button>
+                    <button class="filter-btn" data-filter="group">Fase de Grupos</button>
+                    <button class="filter-btn" data-filter="knockout">Mata-Mata</button>
                 </div>
-
-                <!-- Match Details View -->
-                <div id="match-details-view" class="details-view-container" style="display: none;">
-                    <div class="details-header">
-                        <button class="back-btn" id="back-to-list-btn">
-                            <i class="fa-solid fa-chevron-left"></i> Voltar
-                        </button>
-                        <h2 id="details-stage-title">Fase de Grupos</h2>
-                        <div style="width: 80px;"></div> <!-- Spacer para equilíbrio visual -->
-                    </div>
-                    <div id="match-details-content"></div>
-                </div>
+                <div class="list-container" id="matches-list"></div>
+                <div class="pagination-container" id="pagination-area"></div>
             </section>
 
             <!-- Groups Tab -->
@@ -80,6 +66,17 @@
                 <div class="grid-container" id="stadiums-grid"></div>
             </section>
         </main>
+
+        <!-- Match Details Modal -->
+        <div id="match-details-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-card">
+                <button class="modal-close-btn" id="close-modal-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div id="modal-stage-title" class="modal-stage-title">Fase de Grupos</div>
+                <div id="match-details-content"></div>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>
