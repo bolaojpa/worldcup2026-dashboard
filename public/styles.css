@@ -1413,9 +1413,14 @@ body {
         display: none !important;
     }
 
+    .details-team img {
+        width: 60px !important;
+        height: 40px !important;
+    }
+
     .details-team-mobile-fallback {
         display: inline-block !important;
-        font-size: 1.5rem !important;
+        font-size: 1.25rem !important;
         font-weight: 800 !important;
         color: var(--text-primary) !important;
         letter-spacing: 0.5px !important;
