@@ -366,7 +366,8 @@ function showMatchDetails(matchId) {
     } else if (match.time_elapsed === "Intervalo") {
         statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> Intervalo</span>`;
     } else if (match.time_elapsed !== "notstarted") {
-        statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> AO VIVO - ${match.time_elapsed}</span>`;
+        const elapsedText = (match.time_elapsed || "").toLowerCase() === "live" ? "AO VIVO" : `AO VIVO - ${match.time_elapsed}`;
+        statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
     } else {
         statusHtml = `<span class="badge upcoming">Não Iniciado</span>`;
     }
@@ -612,7 +613,8 @@ function renderMatches() {
             } else if (match.time_elapsed === "Intervalo") {
                 statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> INT</span>`;
             } else if (match.time_elapsed !== "notstarted") {
-                statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${match.time_elapsed}</span>`;
+                const elapsedText = (match.time_elapsed || "").toLowerCase() === "live" ? "AO VIVO" : match.time_elapsed;
+                statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
             } else if (isSoon) {
                 statusHtml = `<span class="badge upcoming-soon" title="${soonText}"><i class="fa-solid fa-hourglass-start"></i> ${timeStr}</span>`;
             } else {
