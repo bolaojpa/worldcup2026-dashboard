@@ -248,7 +248,7 @@ body {
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
 /* Responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .glass-header {
         flex-direction: column;
         gap: 1.5rem;
@@ -1183,7 +1183,7 @@ body.menu-open {
 }
 
 /* Responsive styles */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .hamburger-btn {
         display: flex;
         margin-left: auto;
@@ -1465,7 +1465,7 @@ body.menu-open {
     }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
     .mobile-filters {
         display: none;
     }
