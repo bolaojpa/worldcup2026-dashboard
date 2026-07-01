@@ -627,7 +627,7 @@ function renderMatches() {
             // Status Badge
             let statusHtml = '';
             if (match.finished === "TRUE") {
-                statusHtml = `<span class="badge finished">FT</span>`;
+                statusHtml = `<span class="badge finished">FIM</span>`;
             } else {
                 const elapsedText = getLiveTimeText(match);
                 if (elapsedText === 'Intervalo') {
