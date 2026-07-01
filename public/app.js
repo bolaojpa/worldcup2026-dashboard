@@ -432,9 +432,6 @@ function showMatchDetails(matchId) {
                         ${match.time_elapsed === 'notstarted' ? 'VS' : `${displayHomeScore} - ${displayAwayScore}`}
                     </div>
                     ${hasPenalties ? `<div class="details-penalties" style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">Pênaltis: ${match.home_penalty_score} - ${match.away_penalty_score}</div>` : ''}
-                    <div class="details-status-badge">
-                        ${statusHtml}
-                    </div>
                 </div>
                 <div class="details-team">
                     <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
@@ -442,6 +439,9 @@ function showMatchDetails(matchId) {
                     <span class="details-team-code">${awayTeam.fifa_code || ''}</span>
                     <span class="details-team-mobile-fallback">${awayTeam.fifa_code || awayTeam.name_en}</span>
                 </div>
+            </div>
+            <div class="details-status-badge">
+                ${statusHtml}
             </div>
         </div>
         ${scorersHtml}

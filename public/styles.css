@@ -726,6 +726,14 @@ body {
     display: none;
 }
 
+.details-status-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.25rem;
+    width: 100%;
+}
+
 .details-score-area {
     display: flex;
     flex-direction: column;
@@ -1419,6 +1427,14 @@ body {
         letter-spacing: 0.5px !important;
         margin-top: 0.25rem !important;
         text-align: center !important;
+    }
+
+    .details-stage-info {
+        display: none !important;
+    }
+
+    .details-status-badge {
+        margin-top: 1.5rem !important;
     }
 }
 
