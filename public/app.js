@@ -60,6 +60,37 @@ function parseLocalDateToBrasilia(localDateStr, stadiumId) {
     }
 }
 
+// Retorna o tempo do jogo em tempo real (calculado se a API retornar apenas 'live')
+function getLiveTimeText(match) {
+    if (!match.time_elapsed || match.time_elapsed === 'notstarted') return '';
+    
+    const cleanElapsed = (match.time_elapsed || "").trim().toLowerCase();
+    if (cleanElapsed !== 'live') {
+        if (cleanElapsed === 'intervalo') return 'Intervalo';
+        return match.time_elapsed;
+    }
+    
+    // Calcula o minuto atual do jogo baseado no horário de início
+    const kickoff = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
+    const now = new Date();
+    const diffMs = now.getTime() - kickoff.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 0) {
+        return "1'";
+    } else if (diffMins <= 45) {
+        return `${diffMins}'`;
+    } else if (diffMins <= 60) {
+        return "Intervalo";
+    } else if (diffMins <= 105) {
+        // Segundo tempo (descontando 15min de intervalo)
+        return `${diffMins - 15}'`;
+    } else {
+        // Prorrogação / Acréscimos finais
+        return "90+'";
+    }
+}
+
 // Tradução das fases da copa
 const phaseTranslations = {
     'group': 'Fase de Grupos',
@@ -363,13 +394,15 @@ function showMatchDetails(matchId) {
     let statusHtml = '';
     if (match.finished === "TRUE") {
         statusHtml = `<span class="badge finished">Finalizado</span>`;
-    } else if (match.time_elapsed === "Intervalo") {
-        statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> Intervalo</span>`;
-    } else if (match.time_elapsed !== "notstarted") {
-        const elapsedText = (match.time_elapsed || "").toLowerCase() === "live" ? "AO VIVO" : `AO VIVO - ${match.time_elapsed}`;
-        statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
     } else {
-        statusHtml = `<span class="badge upcoming">Não Iniciado</span>`;
+        const elapsedText = getLiveTimeText(match);
+        if (elapsedText === 'Intervalo') {
+            statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> Intervalo</span>`;
+        } else if (elapsedText) {
+            statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> AO VIVO - ${elapsedText}</span>`;
+        } else {
+            statusHtml = `<span class="badge upcoming">Não Iniciado</span>`;
+        }
     }
 
     // Scorers
@@ -610,15 +643,17 @@ function renderMatches() {
             let statusHtml = '';
             if (match.finished === "TRUE") {
                 statusHtml = `<span class="badge finished">FT</span>`;
-            } else if (match.time_elapsed === "Intervalo") {
-                statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> INT</span>`;
-            } else if (match.time_elapsed !== "notstarted") {
-                const elapsedText = (match.time_elapsed || "").toLowerCase() === "live" ? "AO VIVO" : match.time_elapsed;
-                statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
-            } else if (isSoon) {
-                statusHtml = `<span class="badge upcoming-soon" title="${soonText}"><i class="fa-solid fa-hourglass-start"></i> ${timeStr}</span>`;
             } else {
-                statusHtml = `<span class="badge upcoming"><i class="fa-regular fa-clock"></i> ${timeStr}</span>`;
+                const elapsedText = getLiveTimeText(match);
+                if (elapsedText === 'Intervalo') {
+                    statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> INT</span>`;
+                } else if (elapsedText) {
+                    statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
+                } else if (isSoon) {
+                    statusHtml = `<span class="badge upcoming-soon" title="${soonText}"><i class="fa-solid fa-hourglass-start"></i> ${timeStr}</span>`;
+                } else {
+                    statusHtml = `<span class="badge upcoming"><i class="fa-regular fa-clock"></i> ${timeStr}</span>`;
+                }
             }
 
             const hasStarted = match.time_elapsed !== "notstarted";
