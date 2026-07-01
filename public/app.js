@@ -110,6 +110,8 @@ async function init() {
     setupTabs();
     setupFilters();
     setupDetailsView();
+    handleResponsiveLayout();
+    window.addEventListener('resize', handleResponsiveLayout);
     await fetchAllData();
     renderAll();
     spinner.style.display = 'none';
@@ -126,6 +128,22 @@ async function init() {
             showMatchDetails(state.activeDetailsMatchId);
         }
     }, 10000);
+}
+
+function handleResponsiveLayout() {
+    const navTabs = document.getElementById('nav-tabs');
+    const header = document.querySelector('.glass-header');
+    if (!navTabs || !header) return;
+
+    if (window.innerWidth <= 768) {
+        if (navTabs.parentNode !== document.body) {
+            document.body.appendChild(navTabs);
+        }
+    } else {
+        if (navTabs.parentNode !== header) {
+            header.appendChild(navTabs);
+        }
+    }
 }
 
 function setupHamburger() {

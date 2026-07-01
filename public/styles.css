@@ -25,6 +25,7 @@ body {
         radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
     background-attachment: fixed;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .app-container {
@@ -1162,6 +1163,7 @@ body {
     .glass-header {
         position: relative;
         display: flex;
+        flex-direction: row !important;
         justify-content: space-between;
         align-items: center;
         padding: 1rem 1.5rem;
