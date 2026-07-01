@@ -1,5 +1,69 @@
 const API_BASE = '/get';
 
+const teamTranslations = {
+    "Mexico": "México",
+    "South Africa": "África do Sul",
+    "South Korea": "Coreia do Sul",
+    "Czech Republic": "República Tcheca",
+    "Canada": "Canadá",
+    "Bosnia and Herzegovina": "Bósnia e Herzegovina",
+    "Qatar": "Catar",
+    "Switzerland": "Suíça",
+    "Brazil": "Brasil",
+    "Morocco": "Marrocos",
+    "Haiti": "Haiti",
+    "Scotland": "Escócia",
+    "United States": "Estados Unidos",
+    "Paraguay": "Paraguai",
+    "Australia": "Austrália",
+    "Turkey": "Turquia",
+    "Germany": "Alemanha",
+    "Curaçao": "Curaçao",
+    "Ivory Coast": "Costa do Marfim",
+    "Ecuador": "Equador",
+    "Netherlands": "Holanda",
+    "Japan": "Japão",
+    "Sweden": "Suécia",
+    "Tunisia": "Tunísia",
+    "Belgium": "Bélgica",
+    "Egypt": "Egito",
+    "Iran": "Irã",
+    "New Zealand": "Nova Zelândia",
+    "Spain": "Espanha",
+    "Cape Verde": "Cabo Verde",
+    "Saudi Arabia": "Arábia Saudita",
+    "Uruguay": "Uruguai",
+    "France": "França",
+    "Senegal": "Senegal",
+    "Iraq": "Iraque",
+    "Norway": "Noruega",
+    "Argentina": "Argentina",
+    "Algeria": "Argélia",
+    "Austria": "Áustria",
+    "Jordan": "Jordânia",
+    "Portugal": "Portugal",
+    "Democratic Republic of the Congo": "RD Congo",
+    "Uzbekistan": "Uzbequistão",
+    "Colombia": "Colômbia",
+    "England": "Inglaterra",
+    "Croatia": "Croácia",
+    "Ghana": "Gana",
+    "Panama": "Panamá"
+};
+
+function translateTeamName(name) {
+    if (!name) return name;
+    if (teamTranslations[name]) {
+        return teamTranslations[name];
+    }
+    let translated = name;
+    translated = translated.replace(/Winner Match (\d+)/gi, 'Vencedor Jogo $1');
+    translated = translated.replace(/Winner Group (\w)/gi, 'Vencedor Grupo $1');
+    translated = translated.replace(/Runner-up Group (\w)/gi, '2º Colocado Grupo $1');
+    translated = translated.replace(/3rd Group ([\w\/]+)/gi, '3º Colocado Grupo $1');
+    return translated;
+}
+
 const state = {
     matches: [],
     groups: [],
@@ -282,6 +346,11 @@ async function fetchAllData(silent = false) {
         state.matches = mData.games || [];
         state.groups = gData.groups || [];
         state.teams = Array.isArray(tData) ? tData : (tData.teams || []);
+        state.teams.forEach(team => {
+            if (team.name_en) {
+                team.name_en = translateTeamName(team.name_en);
+            }
+        });
         state.stadiums = Array.isArray(sData) ? sData : (sData.stadiums || []);
         
     } catch (err) {
@@ -293,7 +362,7 @@ async function fetchAllData(silent = false) {
 
 function getTeamDetails(teamIdOrLabel, isLabel = false) {
     if (isLabel || teamIdOrLabel === "0") {
-        return { name_en: teamIdOrLabel === "0" ? "A Definir" : teamIdOrLabel, flag: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg' };
+        return { name_en: teamIdOrLabel === "0" ? "A Definir" : translateTeamName(teamIdOrLabel), flag: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg' };
     }
     return state.teams.find(t => t.id == teamIdOrLabel) || { name_en: "A Definir", flag: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg' };
 }
@@ -357,8 +426,8 @@ function showMatchDetails(matchId) {
     const homeTeam = getTeamDetails(match.home_team_id, match.home_team_id === "0");
     const awayTeam = getTeamDetails(match.away_team_id, match.away_team_id === "0");
     
-    if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = match.home_team_label;
-    if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = match.away_team_label;
+    if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = translateTeamName(match.home_team_label);
+    if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = translateTeamName(match.away_team_label);
 
     // Date
     const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
@@ -602,8 +671,8 @@ function renderMatches() {
             const homeTeam = getTeamDetails(match.home_team_id, match.home_team_id === "0");
             const awayTeam = getTeamDetails(match.away_team_id, match.away_team_id === "0");
             
-            if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = match.home_team_label;
-            if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = match.away_team_label;
+            if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = translateTeamName(match.home_team_label);
+            if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = translateTeamName(match.away_team_label);
 
             const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
             const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
@@ -969,8 +1038,8 @@ function renderBracketMatch(matchId, label) {
     const homeTeam = getTeamDetails(match.home_team_id, match.home_team_id === "0");
     const awayTeam = getTeamDetails(match.away_team_id, match.away_team_id === "0");
 
-    if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = match.home_team_label;
-    if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = match.away_team_label;
+    if (match.home_team_label && match.home_team_id === "0") homeTeam.name_en = translateTeamName(match.home_team_label);
+    if (match.away_team_label && match.away_team_id === "0") awayTeam.name_en = translateTeamName(match.away_team_label);
 
     const { isHomeWinner, isAwayWinner } = determineWinner(match);
 
