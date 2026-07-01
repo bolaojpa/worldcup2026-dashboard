@@ -1305,6 +1305,98 @@ body {
         font-weight: 600;
         padding: 0.5rem;
     }
+
+    /* Mobile-specific sports card styling for match items */
+    .match-list-item {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-areas: 
+            "meta status"
+            "teams teams" !important;
+        gap: 0.75rem !important;
+        padding: 1rem 1.25rem !important;
+        border-radius: 16px !important;
+    }
+
+    .match-list-item:hover {
+        transform: none !important; /* Disable hover translate shift on touch screens */
+    }
+
+    .match-list-meta {
+        grid-area: meta !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .match-list-meta .phase {
+        max-width: none !important;
+        font-size: 0.75rem !important;
+        color: var(--text-secondary) !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+    }
+
+    .match-list-meta .time {
+        font-size: 0.75rem !important;
+        color: var(--text-secondary) !important;
+        font-weight: 600 !important;
+    }
+
+    .match-list-status {
+        grid-area: status !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+    }
+
+    .match-list-status .badge {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.7rem !important;
+        font-weight: 800 !important;
+        border-radius: 6px !important;
+    }
+
+    .match-list-teams {
+        grid-area: teams !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.6rem !important;
+        padding: 0 !important;
+    }
+
+    .match-list-team {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    .match-team-info {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+    }
+
+    .match-team-info img {
+        width: 24px !important;
+        height: 16px !important;
+    }
+
+    .match-team-info span {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+    }
+
+    .match-list-score {
+        font-size: 1.25rem !important;
+        font-weight: 800 !important;
+        color: var(--text-primary) !important;
+        width: auto !important;
+        text-align: right !important;
+    }
 }
 
 @media (min-width: 769px) {
