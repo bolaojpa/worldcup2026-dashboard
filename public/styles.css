@@ -1050,8 +1050,8 @@ body {
     right: -12px;
     top: 50%;
     width: 12px;
-    height: 2px;
-    background: rgba(56, 189, 248, 0.35);
+    height: 1.5px;
+    background: rgba(255, 255, 255, 0.15);
     z-index: 1;
     pointer-events: none;
 }
@@ -1065,8 +1065,8 @@ body {
     left: -12px;
     top: 50%;
     width: 12px;
-    height: 2px;
-    background: rgba(56, 189, 248, 0.35);
+    height: 1.5px;
+    background: rgba(255, 255, 255, 0.15);
     z-index: 1;
     pointer-events: none;
 }
@@ -1080,8 +1080,8 @@ body {
     left: -12px;
     top: 50%;
     width: 12px;
-    height: 2px;
-    background: rgba(56, 189, 248, 0.35);
+    height: 1.5px;
+    background: rgba(255, 255, 255, 0.15);
     z-index: 1;
     pointer-events: none;
 }
@@ -1095,8 +1095,8 @@ body {
     right: -12px;
     top: 50%;
     width: 12px;
-    height: 2px;
-    background: rgba(56, 189, 248, 0.35);
+    height: 1.5px;
+    background: rgba(255, 255, 255, 0.15);
     z-index: 1;
     pointer-events: none;
 }
@@ -1104,69 +1104,69 @@ body {
 /* Vertical connector lines (left side) */
 .r32-left .bracket-match-card:nth-child(odd)::after {
     height: 60px;
-    border-right: 2px solid rgba(56, 189, 248, 0.35);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .r32-left .bracket-match-card:nth-child(even)::after {
     height: 60px;
     top: auto;
     bottom: 50%;
-    border-right: 2px solid rgba(56, 189, 248, 0.35);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .r16-left .bracket-match-card:nth-child(odd)::after {
     height: 120px;
-    border-right: 2px solid rgba(56, 189, 248, 0.35);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .r16-left .bracket-match-card:nth-child(even)::after {
     height: 120px;
     top: auto;
     bottom: 50%;
-    border-right: 2px solid rgba(56, 189, 248, 0.35);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .qf-left .bracket-match-card:nth-child(odd)::after {
     height: 238px;
-    border-right: 2px solid rgba(56, 189, 248, 0.35);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .qf-left .bracket-match-card:nth-child(even)::after {
     height: 238px;
     top: auto;
     bottom: 50%;
-    border-right: 2px solid rgba(56, 189, 248, 0.35);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 /* Vertical connector lines (right side) */
 .r32-right .bracket-match-card:nth-child(odd)::after {
     height: 60px;
-    border-left: 2px solid rgba(56, 189, 248, 0.35);
+    border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .r32-right .bracket-match-card:nth-child(even)::after {
     height: 60px;
     top: auto;
     bottom: 50%;
-    border-left: 2px solid rgba(56, 189, 248, 0.35);
+    border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .r16-right .bracket-match-card:nth-child(odd)::after {
     height: 120px;
-    border-left: 2px solid rgba(56, 189, 248, 0.35);
+    border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .r16-right .bracket-match-card:nth-child(even)::after {
     height: 120px;
     top: auto;
     bottom: 50%;
-    border-left: 2px solid rgba(56, 189, 248, 0.35);
+    border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .qf-right .bracket-match-card:nth-child(odd)::after {
     height: 238px;
-    border-left: 2px solid rgba(56, 189, 248, 0.35);
+    border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .qf-right .bracket-match-card:nth-child(even)::after {
     height: 238px;
     top: auto;
     bottom: 50%;
-    border-left: 2px solid rgba(56, 189, 248, 0.35);
+    border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 /* Modal System */
