@@ -1201,7 +1201,8 @@ body.menu-open {
     }
 
     .logo-container h1 {
-        font-size: 1.25rem;
+        font-size: clamp(0.95rem, 4.2vw, 1.25rem);
+        white-space: nowrap;
     }
 
     .logo-container img {
