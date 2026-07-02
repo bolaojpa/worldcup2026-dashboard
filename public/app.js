@@ -1225,16 +1225,16 @@ function renderBracket() {
                     ${renderBracketMatch(finalMatch.id, finalMatch.label)}
                 </div>
                 <div style="display:flex; flex-direction:column; gap:1rem; align-items:center;">
-                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800; margin-bottom:-0.5rem">Semifinais</div>
+                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800; margin-top:-0.8rem; margin-bottom:0.4rem;">Semifinais</div>
                     <div class="semifinals-row" style="display:flex; gap:1.5rem; position:relative;">
                         <!-- Top Flow to Final SVG -->
                         <svg style="position:absolute; bottom:100%; left:0; width:214px; height:70px; pointer-events:none; z-index:1;">
-                            <path d="M 47.5 70 L 47.5 15 L 166.5 15 L 166.5 70 M 107 15 L 107 0" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" fill="none" />
+                            <path d="M 47.5 70 L 47.5 20 L 166.5 20 L 166.5 70 M 107 20 L 107 2" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" fill="none" />
                         </svg>
                         
                         <!-- Bottom Flow to 3rd Place SVG -->
                         <svg style="position:absolute; top:100%; left:0; width:214px; height:40px; pointer-events:none; z-index:1;">
-                            <path d="M 47.5 0 L 47.5 20 L 166.5 20 L 166.5 0 M 107 20 L 107 40" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" fill="none" />
+                            <path d="M 47.5 0 L 47.5 20 L 166.5 20 L 166.5 0 M 107 20 L 107 38" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" fill="none" />
                         </svg>
 
                         ${renderBracketMatch(semi1.id, semi1.label)}
