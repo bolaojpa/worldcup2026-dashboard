@@ -925,6 +925,8 @@ body {
 }
 
 .bracket-match-card {
+    width: 95px;
+    box-sizing: border-box;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(12px);
