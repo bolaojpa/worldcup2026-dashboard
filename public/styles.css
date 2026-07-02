@@ -1036,6 +1036,139 @@ body {
     transform: scale(1.2);
 }
 
+/* Bracket Connector Lines */
+.bracket-match-card {
+    position: relative;
+}
+
+/* Base style for horizontal output lines (left side) */
+.r32-left .bracket-match-card::after,
+.r16-left .bracket-match-card::after,
+.qf-left .bracket-match-card::after {
+    content: "";
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    width: 12px;
+    height: 2px;
+    background: rgba(56, 189, 248, 0.35);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Base style for horizontal output lines (right side) */
+.r32-right .bracket-match-card::after,
+.r16-right .bracket-match-card::after,
+.qf-right .bracket-match-card::after {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    width: 12px;
+    height: 2px;
+    background: rgba(56, 189, 248, 0.35);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Base style for horizontal input lines (left side inputs) */
+.r16-left .bracket-match-card::before,
+.qf-left .bracket-match-card::before,
+.center-column > div:first-child .bracket-match-card:first-child::before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    width: 12px;
+    height: 2px;
+    background: rgba(56, 189, 248, 0.35);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Base style for horizontal input lines (right side inputs) */
+.r16-right .bracket-match-card::before,
+.qf-right .bracket-match-card::before,
+.center-column > div:first-child .bracket-match-card:last-child::before {
+    content: "";
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    width: 12px;
+    height: 2px;
+    background: rgba(56, 189, 248, 0.35);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Vertical connector lines (left side) */
+.r32-left .bracket-match-card:nth-child(odd)::after {
+    height: 60px;
+    border-right: 2px solid rgba(56, 189, 248, 0.35);
+}
+.r32-left .bracket-match-card:nth-child(even)::after {
+    height: 60px;
+    top: auto;
+    bottom: 50%;
+    border-right: 2px solid rgba(56, 189, 248, 0.35);
+}
+
+.r16-left .bracket-match-card:nth-child(odd)::after {
+    height: 120px;
+    border-right: 2px solid rgba(56, 189, 248, 0.35);
+}
+.r16-left .bracket-match-card:nth-child(even)::after {
+    height: 120px;
+    top: auto;
+    bottom: 50%;
+    border-right: 2px solid rgba(56, 189, 248, 0.35);
+}
+
+.qf-left .bracket-match-card:nth-child(odd)::after {
+    height: 238px;
+    border-right: 2px solid rgba(56, 189, 248, 0.35);
+}
+.qf-left .bracket-match-card:nth-child(even)::after {
+    height: 238px;
+    top: auto;
+    bottom: 50%;
+    border-right: 2px solid rgba(56, 189, 248, 0.35);
+}
+
+/* Vertical connector lines (right side) */
+.r32-right .bracket-match-card:nth-child(odd)::after {
+    height: 60px;
+    border-left: 2px solid rgba(56, 189, 248, 0.35);
+}
+.r32-right .bracket-match-card:nth-child(even)::after {
+    height: 60px;
+    top: auto;
+    bottom: 50%;
+    border-left: 2px solid rgba(56, 189, 248, 0.35);
+}
+
+.r16-right .bracket-match-card:nth-child(odd)::after {
+    height: 120px;
+    border-left: 2px solid rgba(56, 189, 248, 0.35);
+}
+.r16-right .bracket-match-card:nth-child(even)::after {
+    height: 120px;
+    top: auto;
+    bottom: 50%;
+    border-left: 2px solid rgba(56, 189, 248, 0.35);
+}
+
+.qf-right .bracket-match-card:nth-child(odd)::after {
+    height: 238px;
+    border-left: 2px solid rgba(56, 189, 248, 0.35);
+}
+.qf-right .bracket-match-card:nth-child(even)::after {
+    height: 238px;
+    top: auto;
+    bottom: 50%;
+    border-left: 2px solid rgba(56, 189, 248, 0.35);
+}
+
 /* Modal System */
 .modal-overlay {
     position: fixed;
