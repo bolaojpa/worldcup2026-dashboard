@@ -54,10 +54,11 @@ body {
     gap: 1rem;
 }
 
-.logo-container i {
-    font-size: 2rem;
-    color: var(--accent-color);
-    filter: drop-shadow(0 0 8px rgba(56,189,248,0.6));
+.logo-container img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4));
 }
 
 .logo-container h1 {
@@ -1201,6 +1202,10 @@ body.menu-open {
 
     .logo-container h1 {
         font-size: 1.25rem;
+    }
+
+    .logo-container img {
+        height: 36px;
     }
 
     /* Fixed side navigation drawer */
