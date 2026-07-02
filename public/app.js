@@ -1,4 +1,5 @@
 const API_BASE = '/get';
+const PLACEHOLDER_FLAG = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 18 12'%3E%3Crect x='0.5' y='0.5' width='17' height='11' rx='2' fill='rgba(255,255,255,0.05)' stroke='rgba(255,255,255,0.45)' stroke-width='1' stroke-dasharray='2 2'/%3E%3C/svg%3E";
 
 const teamTranslations = {
     "Mexico": "México",
@@ -384,9 +385,9 @@ async function fetchAllData(silent = false) {
 
 function getTeamDetails(teamIdOrLabel, isLabel = false) {
     if (isLabel || teamIdOrLabel === "0") {
-        return { name_en: teamIdOrLabel === "0" ? "A Definir" : translateTeamName(teamIdOrLabel), flag: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg' };
+        return { name_en: teamIdOrLabel === "0" ? "A Definir" : translateTeamName(teamIdOrLabel), flag: PLACEHOLDER_FLAG };
     }
-    return state.teams.find(t => t.id == teamIdOrLabel) || { name_en: "A Definir", flag: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg' };
+    return state.teams.find(t => t.id == teamIdOrLabel) || { name_en: "A Definir", flag: PLACEHOLDER_FLAG };
 }
 
 function renderAll() {
@@ -533,7 +534,7 @@ function showMatchDetails(matchId) {
             <div class="details-stage-info">${match.type === 'group' ? `Grupo ${match.group || ''}` : (phaseTranslations[match.type] || 'Mata-Mata')}</div>
             <div class="details-teams">
                 <div class="details-team">
-                    <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                    <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src=PLACEHOLDER_FLAG">
                     <span class="details-team-mobile-fallback">${homeTeam.fifa_code || homeTeam.name_en}</span>
                 </div>
                 <div class="details-score-area">
@@ -543,7 +544,7 @@ function showMatchDetails(matchId) {
                     ${hasPenalties ? `<div class="details-penalties" style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">Pênaltis: ${match.home_penalty_score} - ${match.away_penalty_score}</div>` : ''}
                 </div>
                 <div class="details-team">
-                    <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                    <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src=PLACEHOLDER_FLAG">
                     <span class="details-team-mobile-fallback">${awayTeam.fifa_code || awayTeam.name_en}</span>
                 </div>
             </div>
@@ -756,7 +757,7 @@ function renderMatches() {
                 <div class="match-list-teams">
                     <div class="match-list-team ${homeClass}">
                         <div class="match-team-info">
-                            <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                            <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src=PLACEHOLDER_FLAG">
                             <span class="team-name-desktop">${homeTeam.name_en}</span>
                             <span class="team-name-mobile">${homeTeam.fifa_code || "TBD"}</span>
                         </div>
@@ -764,7 +765,7 @@ function renderMatches() {
                     </div>
                     <div class="match-list-team ${awayClass}">
                         <div class="match-team-info">
-                            <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                            <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src=PLACEHOLDER_FLAG">
                             <span class="team-name-desktop">${awayTeam.name_en}</span>
                             <span class="team-name-mobile">${awayTeam.fifa_code || "TBD"}</span>
                         </div>
@@ -836,7 +837,7 @@ function renderGroups() {
                 <tr>
                     <td>
                         <span style="color:var(--text-secondary); width:15px; display:inline-block">${index+1}</span>
-                        <img src="${team.flag}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                        <img src="${team.flag}" onerror="this.src=PLACEHOLDER_FLAG">
                         ${team.name_en}
                     </td>
                     <td><strong>${t.pts || 0}</strong></td>
@@ -913,7 +914,7 @@ function renderTeams() {
             card.style.transition = 'transform 0.2s ease, border-color 0.2s ease';
             
             card.innerHTML = `
-                <img src="${team.flag}" style="width: 50px; height: 35px; border-radius: 4px; object-fit: cover; border: 1px solid var(--glass-border); box-shadow: 0 2px 5px rgba(0,0,0,0.3);" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">
+                <img src="${team.flag}" style="width: 50px; height: 35px; border-radius: 4px; object-fit: cover; border: 1px solid var(--glass-border); box-shadow: 0 2px 5px rgba(0,0,0,0.3);" onerror="this.src=PLACEHOLDER_FLAG">
                 <div>
                     <h4 style="font-weight: 800; font-size: 1rem; margin-bottom: 0.15rem;">${team.name_en}</h4>
                     <span style="font-size: 0.75rem; color: var(--text-secondary)">Código FIFA: <strong>${team.fifa_code}</strong></span>
@@ -1094,11 +1095,11 @@ function renderBracketMatch(matchId, label) {
 
     const homeFlagHtml = isHomePlaceholder
         ? `<div class="flag-placeholder bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')"></div>`
-        : `<img src="${homeTeam.flag}" class="bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
+        : `<img src="${homeTeam.flag}" class="bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en}', 'top')" onerror="this.src=PLACEHOLDER_FLAG">`;
 
     const awayFlagHtml = isAwayPlaceholder
         ? `<div class="flag-placeholder bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')"></div>`
-        : `<img src="${awayTeam.flag}" class="bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_the_United_Nations.svg'">`;
+        : `<img src="${awayTeam.flag}" class="bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')" onerror="this.src=PLACEHOLDER_FLAG">`;
 
     return `
         <div class="bracket-match-card" onclick="showMatchDetails('${match.id}')">
