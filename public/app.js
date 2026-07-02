@@ -1079,6 +1079,16 @@ function renderBracketMatch(matchId, label) {
     const timeStr = isNaN(dateObj.getTime()) ? (match.local_date.split(" ")[1] || "") : dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
     const statusText = match.finished === "TRUE" ? "Fim" : (match.time_elapsed !== "notstarted" ? "Ao Vivo" : timeStr);
 
+    let dateStr = "";
+    if (!isNaN(dateObj.getTime())) {
+        dateStr = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}`;
+    } else {
+        const dateParts = (match.local_date || "").split(" ")[0].split("/");
+        if (dateParts.length === 3) {
+            dateStr = `${dateParts[1]}/${dateParts[0]}`;
+        }
+    }
+
     const isHomePlaceholder = !match.home_team_id || match.home_team_id === "0";
     const isAwayPlaceholder = !match.away_team_id || match.away_team_id === "0";
 
@@ -1093,7 +1103,7 @@ function renderBracketMatch(matchId, label) {
     return `
         <div class="bracket-match-card" onclick="showMatchDetails('${match.id}')">
             <div class="bracket-match-header">
-                <span>J${match.id}</span>
+                <span style="color:var(--text-secondary); font-size:0.75rem;">${dateStr}</span>
                 <span style="color:var(--accent-color); font-weight:800">${statusText}</span>
             </div>
             <div class="bracket-team-row ${homeClass}">
