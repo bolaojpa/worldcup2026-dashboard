@@ -1220,16 +1220,16 @@ function renderBracket() {
             const semi2 = col.matches.find(m => m.id === 102);
 
             colDiv.innerHTML = `
-                <div style="display:flex; flex-direction:column; gap:1rem; align-items:center;">
-                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800; margin-bottom:-0.5rem">Semifinais</div>
-                    <div style="display:flex; gap:1.5rem;">
-                        ${renderBracketMatch(semi1.id, semi1.label)}
-                        ${renderBracketMatch(semi2.id, semi2.label)}
-                    </div>
-                </div>
                 <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:center; border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 1rem; background: rgba(56, 189, 248, 0.03);">
                     <div style="font-size:0.85rem; text-transform:uppercase; color:var(--accent-color); font-weight:800; letter-spacing:1px"><i class="fa-solid fa-trophy"></i> Final</div>
                     ${renderBracketMatch(finalMatch.id, finalMatch.label)}
+                </div>
+                <div style="display:flex; flex-direction:column; gap:1rem; align-items:center;">
+                    <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800; margin-bottom:-0.5rem">Semifinais</div>
+                    <div class="semifinals-row" style="display:flex; gap:1.5rem;">
+                        ${renderBracketMatch(semi1.id, semi1.label)}
+                        ${renderBracketMatch(semi2.id, semi2.label)}
+                    </div>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:center; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem; background: rgba(255,255,255,0.01);">
                     <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:800">Decisão 3º Lugar</div>
