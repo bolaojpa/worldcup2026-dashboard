@@ -1048,12 +1048,10 @@ body {
     content: "";
     position: absolute;
     right: -12px;
-    top: 50%;
     width: 12px;
-    height: 1.5px;
-    background: rgba(255, 255, 255, 0.15);
     z-index: 1;
     pointer-events: none;
+    background: transparent !important;
 }
 
 /* Base style for horizontal output lines (right side) */
@@ -1063,12 +1061,10 @@ body {
     content: "";
     position: absolute;
     left: -12px;
-    top: 50%;
     width: 12px;
-    height: 1.5px;
-    background: rgba(255, 255, 255, 0.15);
     z-index: 1;
     pointer-events: none;
+    background: transparent !important;
 }
 
 /* Base style for horizontal input lines (left side inputs) */
@@ -1080,10 +1076,11 @@ body {
     left: -12px;
     top: 50%;
     width: 12px;
-    height: 1.5px;
-    background: rgba(255, 255, 255, 0.15);
+    height: 0;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.15);
     z-index: 1;
     pointer-events: none;
+    background: transparent !important;
 }
 
 /* Base style for horizontal input lines (right side inputs) */
@@ -1095,77 +1092,90 @@ body {
     right: -12px;
     top: 50%;
     width: 12px;
-    height: 1.5px;
-    background: rgba(255, 255, 255, 0.15);
+    height: 0;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.15);
     z-index: 1;
     pointer-events: none;
+    background: transparent !important;
 }
 
 /* Vertical connector lines (left side) */
 .r32-left .bracket-match-card:nth-child(odd)::after {
+    top: 50%;
     height: 60px;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.15);
     border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .r32-left .bracket-match-card:nth-child(even)::after {
-    height: 60px;
-    top: auto;
     bottom: 50%;
+    height: 60px;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
     border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .r16-left .bracket-match-card:nth-child(odd)::after {
+    top: 50%;
     height: 120px;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.15);
     border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .r16-left .bracket-match-card:nth-child(even)::after {
     height: 120px;
-    top: auto;
     bottom: 50%;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
     border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .qf-left .bracket-match-card:nth-child(odd)::after {
+    top: 50%;
     height: 238px;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.15);
     border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .qf-left .bracket-match-card:nth-child(even)::after {
     height: 238px;
-    top: auto;
     bottom: 50%;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
     border-right: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 /* Vertical connector lines (right side) */
 .r32-right .bracket-match-card:nth-child(odd)::after {
+    top: 50%;
     height: 60px;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.15);
     border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .r32-right .bracket-match-card:nth-child(even)::after {
-    height: 60px;
-    top: auto;
     bottom: 50%;
+    height: 60px;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
     border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .r16-right .bracket-match-card:nth-child(odd)::after {
+    top: 50%;
     height: 120px;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.15);
     border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .r16-right .bracket-match-card:nth-child(even)::after {
     height: 120px;
-    top: auto;
     bottom: 50%;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
     border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .qf-right .bracket-match-card:nth-child(odd)::after {
+    top: 50%;
     height: 238px;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.15);
     border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 .qf-right .bracket-match-card:nth-child(even)::after {
     height: 238px;
-    top: auto;
     bottom: 50%;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
     border-left: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
