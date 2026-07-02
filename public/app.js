@@ -1,5 +1,5 @@
 const API_BASE = '/get';
-const PLACEHOLDER_FLAG = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 18 12'%3E%3Crect x='0.5' y='0.5' width='17' height='11' rx='2' fill='rgba(255,255,255,0.05)' stroke='rgba(255,255,255,0.45)' stroke-width='1' stroke-dasharray='2 2'/%3E%3C/svg%3E";
+const PLACEHOLDER_FLAG = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 18 12'%3E%3Crect width='18' height='12' rx='2' fill='rgba(255,255,255,0.08)'/%3E%3C/svg%3E";
 
 const teamTranslations = {
     "Mexico": "México",
