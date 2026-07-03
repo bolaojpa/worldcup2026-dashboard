@@ -516,4 +516,28 @@ router.get('/stadium/:id', async(req,res) => {
     }
 });
 
+// Proxy ESPN Teams List
+router.get('/espn/teams', async (req, res) => {
+    try {
+        const response = await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/teams");
+        const data = await response.json();
+        return res.status(200).json(data);
+    } catch (err) {
+        console.error('Error proxying ESPN teams:', err);
+        return res.status(500).json({ error: 'Error fetching ESPN teams', details: err.message });
+    }
+});
+
+// Proxy ESPN Team Roster
+router.get('/espn/roster/:id', async (req, res) => {
+    try {
+        const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/teams/${req.params.id}/roster`);
+        const data = await response.json();
+        return res.status(200).json(data);
+    } catch (err) {
+        console.error('Error proxying ESPN roster:', err);
+        return res.status(500).json({ error: 'Error fetching ESPN roster', details: err.message });
+    }
+});
+
 module.exports = app => app.use('/get', router);

@@ -368,7 +368,7 @@ function setupDetailsView() {
 
 async function fetchEspnTeams() {
     try {
-        const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/teams");
+        const res = await fetch("/get/espn/teams");
         const data = await res.json();
         state.espnTeams = data.sports?.[0]?.leagues?.[0]?.teams || [];
     } catch (e) {
@@ -446,7 +446,7 @@ async function showTeamSquad(teamId) {
             return;
         }
 
-        const rosterUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/teams/${espnTeam.team.id}/roster`;
+        const rosterUrl = `/get/espn/roster/${espnTeam.team.id}`;
         const resRoster = await fetch(rosterUrl);
         const rosterData = await resRoster.json();
 
