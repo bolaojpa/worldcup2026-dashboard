@@ -331,6 +331,18 @@ function setupFilters() {
             renderMatches();
         });
     }
+
+    // Force synchronization of initial state with UI (prevents browser persistence mismatch)
+    if (mobileSelect) {
+        mobileSelect.value = state.activeFilter;
+    }
+    filterBtns.forEach(btn => {
+        if (btn.dataset.filter === state.activeFilter) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
 }
 
 function setupDetailsView() {
