@@ -425,7 +425,7 @@ async function showTeamSquad(teamId) {
             await fetchEspnTeams();
         }
 
-        let queryName = team.name_en.toLowerCase();
+        let queryName = (team.name_en_original || team.name_en).toLowerCase();
         const overrides = {
             "czech republic": "czechia",
             "bosnia and herzegovina": "bosnia-herzegovina",
@@ -558,6 +558,7 @@ async function fetchAllData(silent = false) {
         state.teams = Array.isArray(tData) ? tData : (tData.teams || []);
         state.teams.forEach(team => {
             if (team.name_en) {
+                team.name_en_original = team.name_en;
                 team.name_en = translateTeamName(team.name_en);
             }
         });
