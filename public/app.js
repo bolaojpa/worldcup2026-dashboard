@@ -72,7 +72,9 @@ const state = {
     stadiums: [],
     activeFilter: 'today',
     visibleMatchesCount: 15,
-    selectedGroupFilter: null
+    selectedGroupFilter: null,
+    espnTeams: [],
+    squadsCache: {}
 };
 
 // Elements
@@ -189,9 +191,11 @@ async function init() {
     setupTabs();
     setupFilters();
     setupDetailsView();
+    setupSquadView();
     handleResponsiveLayout();
     window.addEventListener('resize', handleResponsiveLayout);
     await fetchAllData();
+    fetchEspnTeams(); // Carrega os IDs da ESPN em segundo plano
     renderAll();
     spinner.style.display = 'none';
 
@@ -360,6 +364,177 @@ function setupDetailsView() {
             if (e.target === modal) closeModal();
         });
     }
+}
+
+async function fetchEspnTeams() {
+    try {
+        const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/teams");
+        const data = await res.json();
+        state.espnTeams = data.sports?.[0]?.leagues?.[0]?.teams || [];
+    } catch (e) {
+        console.error("Erro ao carregar seleções da ESPN:", e);
+    }
+}
+
+function setupSquadView() {
+    const modal = document.getElementById('team-squad-modal');
+    const closeBtn = document.getElementById('close-squad-btn');
+    if (closeBtn && modal) {
+        const closeModal = () => {
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    }
+}
+
+async function showTeamSquad(teamId) {
+    const team = state.teams.find(t => t.id == teamId);
+    if (!team) return;
+
+    const modal = document.getElementById('team-squad-modal');
+    const titleEl = document.getElementById('squad-modal-title');
+    const contentEl = document.getElementById('team-squad-content');
+
+    if (!modal || !titleEl || !contentEl) return;
+
+    titleEl.innerHTML = `
+        <img src="${team.flag}" style="width: 32px; height: 22px; border-radius: 2px; object-fit: cover;" onerror="this.src=PLACEHOLDER_FLAG">
+        Convocados — ${translateTeamName(team.name_en)}
+    `;
+    contentEl.innerHTML = `
+        <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
+            <div class="spinner"></div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 50);
+
+    try {
+        if (state.squadsCache[teamId]) {
+            renderSquad(state.squadsCache[teamId], contentEl);
+            return;
+        }
+
+        if (!state.espnTeams || state.espnTeams.length === 0) {
+            await fetchEspnTeams();
+        }
+
+        let queryName = team.name_en.toLowerCase();
+        const overrides = {
+            "czech republic": "czechia",
+            "bosnia and herzegovina": "bosnia-herzegovina",
+            "turkey": "türkiye",
+            "democratic republic of the congo": "congo dr"
+        };
+        if (overrides[queryName]) {
+            queryName = overrides[queryName];
+        }
+
+        const espnTeam = state.espnTeams.find(et => {
+            const name = (et.team?.displayName || et.team?.name || "").toLowerCase();
+            return name === queryName;
+        });
+
+        if (!espnTeam) {
+            contentEl.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">Elenco não encontrado na API da ESPN.</div>`;
+            return;
+        }
+
+        const rosterUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/teams/${espnTeam.team.id}/roster`;
+        const resRoster = await fetch(rosterUrl);
+        const rosterData = await resRoster.json();
+
+        const athletes = rosterData.athletes || [];
+        if (athletes.length === 0) {
+            contentEl.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">Nenhum jogador convocado encontrado para esta seleção.</div>`;
+            return;
+        }
+
+        state.squadsCache[teamId] = athletes;
+        renderSquad(athletes, contentEl);
+
+    } catch (err) {
+        console.error("Erro ao buscar elenco:", err);
+        contentEl.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">Erro ao carregar o elenco. Tente novamente mais tarde.</div>`;
+    }
+}
+
+function renderSquad(athletes, container) {
+    const positionsMap = {
+        "Goalkeeper": "Goleiros",
+        "Defender": "Defensores",
+        "Midfielder": "Meio-campistas",
+        "Forward": "Atacantes"
+    };
+
+    const grouped = {
+        "Goleiros": [],
+        "Defensores": [],
+        "Meio-campistas": [],
+        "Atacantes": [],
+        "Outros": []
+    };
+
+    athletes.forEach(ath => {
+        const rawPos = ath.position?.name || "";
+        let mappedPos = "Outros";
+        for (const [key, val] of Object.entries(positionsMap)) {
+            if (rawPos.toLowerCase().includes(key.toLowerCase())) {
+                mappedPos = val;
+                break;
+            }
+        }
+        grouped[mappedPos].push(ath);
+    });
+
+    let html = "";
+    const order = ["Goleiros", "Defensores", "Meio-campistas", "Atacantes", "Outros"];
+
+    order.forEach(pos => {
+        const list = grouped[pos];
+        if (list.length === 0) return;
+
+        list.sort((a, b) => {
+            const numA = parseInt(a.jersey || "999");
+            const numB = parseInt(b.jersey || "999");
+            return numA - numB;
+        });
+
+        html += `
+            <div class="squad-position-section">
+                <div class="squad-position-title">${pos}</div>
+                <div class="squad-players-grid">
+        `;
+
+        list.forEach(p => {
+            const name = p.displayName || p.fullName || "Jogador";
+            const jersey = p.jersey || "-";
+            const detailPos = p.position?.displayName || p.position?.name || "";
+            
+            html += `
+                <div class="squad-player-row">
+                    <div class="player-jersey-badge">${jersey}</div>
+                    <div class="player-info-container">
+                        <span class="player-name">${name}</span>
+                        <span class="player-pos-detail">${detailPos}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
 }
 
 async function fetchAllData(silent = false) {
@@ -924,6 +1099,7 @@ function renderTeams() {
             card.style.gap = '1rem';
             card.style.padding = '1rem';
             card.style.transition = 'transform 0.2s ease, border-color 0.2s ease';
+            card.onclick = () => showTeamSquad(team.id);
             
             card.innerHTML = `
                 <img src="${team.flag}" style="width: 50px; height: 35px; border-radius: 4px; object-fit: cover; border: 1px solid var(--glass-border); box-shadow: 0 2px 5px rgba(0,0,0,0.3);" onerror="this.src=PLACEHOLDER_FLAG">

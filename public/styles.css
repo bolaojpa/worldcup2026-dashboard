@@ -1653,3 +1653,89 @@ body.menu-open {
         margin-bottom: 0;
     }
 }
+
+/* Styles for Seleções Clickable Cards and Squad Modal */
+#teams-grid .glass-card {
+    cursor: pointer;
+}
+#teams-grid .glass-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    border-color: var(--accent-color);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.squad-position-section {
+    margin-bottom: 1.5rem;
+}
+
+.squad-position-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.squad-players-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+    .squad-players-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+
+.squad-player-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.squad-player-row:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.player-jersey-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    color: #0f172a;
+    font-weight: 800;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.player-info-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.player-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.player-pos-detail {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
