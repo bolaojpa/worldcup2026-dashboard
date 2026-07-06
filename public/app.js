@@ -666,7 +666,15 @@ function showMatchDetails(matchId) {
         } else if (elapsedText) {
             statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> AO VIVO - ${elapsedText}</span>`;
         } else {
-            statusHtml = `<span class="badge upcoming">Não Iniciado</span>`;
+            const diffMs = !isNaN(dateObj.getTime()) ? (dateObj.getTime() - Date.now()) : null;
+            const diffMins = diffMs !== null ? Math.floor(diffMs / 60000) : 999;
+            if (diffMins <= 10) {
+                statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> EM INSTANTES</span>`;
+            } else if (diffMins <= 120) {
+                statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> DAQUI A POUCO</span>`;
+            } else {
+                statusHtml = `<span class="badge upcoming">Não Iniciado</span>`;
+            }
         }
     }
 
@@ -914,11 +922,10 @@ function renderMatches() {
                     statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> INT</span>`;
                 } else if (elapsedText) {
                     statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
-                } else if (diffMins > 0 && diffMins <= 60) {
-                    // Contagem regressiva se começar em menos de 1h
-                    statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> ${diffMins} min</span>`;
-                } else if (isSoon) {
-                    statusHtml = `<span class="badge upcoming-soon" title="${soonText}"><i class="fa-solid fa-hourglass-start"></i> ${timeStr}</span>`;
+                } else if (diffMins <= 10) {
+                    statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> EM INSTANTES</span>`;
+                } else if (diffMins <= 120) {
+                    statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> DAQUI A POUCO</span>`;
                 } else {
                     statusHtml = `<span class="badge upcoming"><i class="fa-regular fa-clock"></i> ${timeStr}</span>`;
                 }
