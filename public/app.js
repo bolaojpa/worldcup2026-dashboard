@@ -922,10 +922,11 @@ function renderMatches() {
                     statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> INT</span>`;
                 } else if (elapsedText) {
                     statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
-                } else if (diffMins <= 10) {
-                    statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> EM INSTANTES</span>`;
-                } else if (diffMins <= 120) {
-                    statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> DAQUI A POUCO</span>`;
+                } else if (diffMins > 0 && diffMins <= 60) {
+                    // Contagem regressiva se começar em menos de 1h
+                    statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> ${diffMins} min</span>`;
+                } else if (isSoon) {
+                    statusHtml = `<span class="badge upcoming-soon" title="${soonText}"><i class="fa-solid fa-hourglass-start"></i> ${timeStr}</span>`;
                 } else {
                     statusHtml = `<span class="badge upcoming"><i class="fa-regular fa-clock"></i> ${timeStr}</span>`;
                 }
@@ -1274,7 +1275,7 @@ function renderBracketMatch(matchId, label) {
     // Convert local date time to Brasília Time (UTC-3)
     const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
     const timeStr = isNaN(dateObj.getTime()) ? (match.local_date.split(" ")[1] || "") : dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
-    const statusText = match.finished === "TRUE" ? "Fim" : (match.time_elapsed !== "notstarted" ? "Ao Vivo" : timeStr);
+    const statusText = match.finished === "TRUE" ? "Fim" : (match.time_elapsed !== "notstarted" ? '<span class="pulse-dot"></span>' : timeStr);
 
     let dateStr = "";
     if (!isNaN(dateObj.getTime())) {
