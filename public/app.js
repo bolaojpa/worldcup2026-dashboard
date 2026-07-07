@@ -548,21 +548,49 @@ async function fetchAllData(silent = false) {
             fetch(`${API_BASE}/stadiums`)
         ]);
 
-        const mData = await mRes.json();
-        const gData = await gRes.json();
-        const tData = await tRes.json();
-        const sData = await sRes.json();
-
-        state.matches = mData.games || [];
-        state.groups = gData.groups || [];
-        state.teams = Array.isArray(tData) ? tData : (tData.teams || []);
-        state.teams.forEach(team => {
-            if (team.name_en) {
-                team.name_en_original = team.name_en;
-                team.name_en = translateTeamName(team.name_en);
+        if (mRes.ok) {
+            const mData = await mRes.json();
+            if (mData && mData.games) {
+                state.matches = mData.games;
             }
-        });
-        state.stadiums = Array.isArray(sData) ? sData : (sData.stadiums || []);
+        } else {
+            console.warn('Failed to fetch matches:', mRes.status);
+        }
+
+        if (gRes.ok) {
+            const gData = await gRes.json();
+            if (gData && gData.groups) {
+                state.groups = gData.groups;
+            }
+        } else {
+            console.warn('Failed to fetch groups:', gRes.status);
+        }
+
+        if (tRes.ok) {
+            const tData = await tRes.json();
+            const fetchedTeams = Array.isArray(tData) ? tData : (tData.teams || []);
+            if (fetchedTeams.length > 0) {
+                state.teams = fetchedTeams;
+                state.teams.forEach(team => {
+                    if (team.name_en) {
+                        team.name_en_original = team.name_en;
+                        team.name_en = translateTeamName(team.name_en);
+                    }
+                });
+            }
+        } else {
+            console.warn('Failed to fetch teams:', tRes.status);
+        }
+
+        if (sRes.ok) {
+            const sData = await sRes.json();
+            const fetchedStadiums = Array.isArray(sData) ? sData : (sData.stadiums || []);
+            if (fetchedStadiums.length > 0) {
+                state.stadiums = fetchedStadiums;
+            }
+        } else {
+            console.warn('Failed to fetch stadiums:', sRes.status);
+        }
         
     } catch (err) {
         console.error('Error fetching data:', err);
