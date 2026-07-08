@@ -964,6 +964,9 @@ function renderMatches() {
             const homeScore = !hasStarted ? '' : ((match.home_score === null || match.home_score === 'null' || match.home_score === undefined) ? '0' : match.home_score);
             const awayScore = !hasStarted ? '' : ((match.away_score === null || match.away_score === 'null' || match.away_score === undefined) ? '0' : match.away_score);
 
+            const homePen = match.home_penalty_score && match.home_penalty_score !== 'null' && match.home_penalty_score !== '' ? `(${match.home_penalty_score})` : '';
+            const awayPen = match.away_penalty_score && match.away_penalty_score !== 'null' && match.away_penalty_score !== '' ? `(${match.away_penalty_score})` : '';
+
             // Determinar o vencedor se o jogo terminou
             const { isHomeWinner, isAwayWinner } = determineWinner(match);
 
@@ -985,7 +988,9 @@ function renderMatches() {
                             <span class="team-name-desktop">${homeTeam.name_en}</span>
                             <span class="team-name-mobile">${homeTeam.fifa_code || "TBD"}</span>
                         </div>
-                        <div class="match-list-score">${homeScore}</div>
+                        <div class="match-list-score">
+                            ${homeScore} ${homePen ? `<span class="penalties-suffix" style="font-size: 0.8em; color: var(--text-secondary); margin-left: 0.15rem; font-weight: normal;">${homePen}</span>` : ''}
+                        </div>
                     </div>
                     <div class="match-list-team ${awayClass}">
                         <div class="match-team-info">
@@ -993,7 +998,9 @@ function renderMatches() {
                             <span class="team-name-desktop">${awayTeam.name_en}</span>
                             <span class="team-name-mobile">${awayTeam.fifa_code || "TBD"}</span>
                         </div>
-                        <div class="match-list-score">${awayScore}</div>
+                        <div class="match-list-score">
+                            ${awayScore} ${awayPen ? `<span class="penalties-suffix" style="font-size: 0.8em; color: var(--text-secondary); margin-left: 0.15rem; font-weight: normal;">${awayPen}</span>` : ''}
+                        </div>
                     </div>
                 </div>
                 <div class="match-list-status">
