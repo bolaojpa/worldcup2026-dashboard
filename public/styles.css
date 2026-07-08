@@ -582,8 +582,10 @@ body {
     font-size: 1.1rem;
     font-weight: 800;
     color: var(--text-primary);
-    width: 30px;
+    width: auto;
+    min-width: 30px;
     text-align: right;
+    white-space: nowrap;
 }
 
 /* Coluna 3: Status Badge */
