@@ -751,7 +751,7 @@ function showMatchDetails(matchId) {
 
     const displayHomeScore = match.time_elapsed === 'notstarted' ? '' : (match.home_score || 0);
     const displayAwayScore = match.time_elapsed === 'notstarted' ? '' : (match.away_score || 0);
-    const hasPenalties = match.home_penalty_score && match.home_penalty_score !== 'null' && match.home_penalty_score !== '';
+    const hasPenalties = match.home_penalty_score !== undefined && match.home_penalty_score !== null && match.home_penalty_score !== 'null' && match.home_penalty_score !== '';
 
     document.getElementById('match-details-content').innerHTML = `
         <div class="match-details-card">
@@ -964,8 +964,10 @@ function renderMatches() {
             const homeScore = !hasStarted ? '' : ((match.home_score === null || match.home_score === 'null' || match.home_score === undefined) ? '0' : match.home_score);
             const awayScore = !hasStarted ? '' : ((match.away_score === null || match.away_score === 'null' || match.away_score === undefined) ? '0' : match.away_score);
 
-            const homePen = match.home_penalty_score && match.home_penalty_score !== 'null' && match.home_penalty_score !== '' ? `(${match.home_penalty_score})` : '';
-            const awayPen = match.away_penalty_score && match.away_penalty_score !== 'null' && match.away_penalty_score !== '' ? `(${match.away_penalty_score})` : '';
+            const hasHomePen = match.home_penalty_score !== undefined && match.home_penalty_score !== null && match.home_penalty_score !== 'null' && match.home_penalty_score !== '';
+            const hasAwayPen = match.away_penalty_score !== undefined && match.away_penalty_score !== null && match.away_penalty_score !== 'null' && match.away_penalty_score !== '';
+            const homePen = hasHomePen ? `(${match.home_penalty_score})` : '';
+            const awayPen = hasAwayPen ? `(${match.away_penalty_score})` : '';
 
             // Determinar o vencedor se o jogo terminou
             const { isHomeWinner, isAwayWinner } = determineWinner(match);
@@ -1304,8 +1306,10 @@ function renderBracketMatch(matchId, label) {
     const homeScore = match.finished === "TRUE" || match.time_elapsed !== "notstarted" ? match.home_score : "";
     const awayScore = match.finished === "TRUE" || match.time_elapsed !== "notstarted" ? match.away_score : "";
 
-    const homePen = match.home_penalty_score && match.home_penalty_score !== 'null' && match.home_penalty_score !== '' ? `(${match.home_penalty_score})` : '';
-    const awayPen = match.away_penalty_score && match.away_penalty_score !== 'null' && match.away_penalty_score !== '' ? `(${match.away_penalty_score})` : '';
+    const hasHomePen = match.home_penalty_score !== undefined && match.home_penalty_score !== null && match.home_penalty_score !== 'null' && match.home_penalty_score !== '';
+    const hasAwayPen = match.away_penalty_score !== undefined && match.away_penalty_score !== null && match.away_penalty_score !== 'null' && match.away_penalty_score !== '';
+    const homePen = hasHomePen ? `(${match.home_penalty_score})` : '';
+    const awayPen = hasAwayPen ? `(${match.away_penalty_score})` : '';
 
     // Convert local date time to Brasília Time (UTC-3)
     const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);

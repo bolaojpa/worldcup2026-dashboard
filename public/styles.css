@@ -1007,7 +1007,7 @@ body {
     color: var(--text-primary);
 }
 
-.bracket-team-score.penalties {
+.bracket-team-score .penalties {
     font-size: 0.7rem;
     color: var(--text-secondary);
     margin-left: 0.25rem;
