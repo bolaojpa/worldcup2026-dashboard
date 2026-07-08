@@ -3,7 +3,7 @@ const router = express.Router();
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
-const { advanceRoundOf32Winners } = require('../services/knockoutBracket');
+const { advanceRoundOf32Winners, advanceKnockoutWinners } = require('../services/knockoutBracket');
 
 // Configurações do Banco
 const MONGO_URI = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/worldcup2026';
@@ -180,7 +180,7 @@ router.get('/sync-live-games', async (req, res) => {
         const db = client.db();
         const todayMatches = await fetchVarzesh3Today();
         const updatedCount = await syncMatches(todayMatches, db);
-        await advanceRoundOf32Winners(db, MATCH_COLLECTION);
+        await advanceKnockoutWinners(db, MATCH_COLLECTION);
         
         return res.status(200).json({ 
             success: true, 

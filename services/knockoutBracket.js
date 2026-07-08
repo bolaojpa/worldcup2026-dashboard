@@ -115,9 +115,79 @@ async function advanceRoundOf32Winners(db, collectionName = "games") {
     return results;
 }
 
+async function advanceKnockoutWinners(db, collectionName = "games") {
+    const matches = db.collection(collectionName);
+    
+    // Find all finished knockout games
+    const finishedMatches = await matches.find({
+        type: { $in: ["r32", "r16", "qf", "sf"] },
+        $or: [
+            { finished: { $in: ["TRUE", "true", true, 1, "1", "finished", "FINISHED"] } },
+            { time_elapsed: "finished" }
+        ]
+    }).toArray();
+
+    const results = [];
+    
+    for (const match of finishedMatches) {
+        const winnerTeamId = getWinnerTeamId(match);
+        if (!winnerTeamId) continue;
+        
+        // Find match that expects the winner of this match
+        const winnerLabel = `Winner Match ${match.id}`;
+        const nextMatchForWinner = await matches.findOne({
+            $or: [
+                { home_team_label: winnerLabel },
+                { away_team_label: winnerLabel }
+            ]
+        });
+        
+        if (nextMatchForWinner) {
+            const field = nextMatchForWinner.home_team_label === winnerLabel ? "home_team_id" : "away_team_id";
+            if (String(nextMatchForWinner[field]) !== String(winnerTeamId)) {
+                await matches.updateOne(
+                    { _id: nextMatchForWinner._id },
+                    { $set: { [field]: winnerTeamId } }
+                );
+                results.push({ advanced: true, matchId: match.id, nextMatchId: nextMatchForWinner.id, winnerTeamId, field, type: "winner" });
+            }
+        }
+        
+        // If it's a semifinal, we also need to advance the loser to the third place play-off
+        if (match.type === "sf") {
+            const homeTeamId = validTeamId(match.home_team_id);
+            const awayTeamId = validTeamId(match.away_team_id);
+            if (homeTeamId && awayTeamId) {
+                const loserTeamId = winnerTeamId === homeTeamId ? awayTeamId : homeTeamId;
+                const loserLabel = `Loser Match ${match.id}`;
+                const nextMatchForLoser = await matches.findOne({
+                    $or: [
+                        { home_team_label: loserLabel },
+                        { away_team_label: loserLabel }
+                    ]
+                });
+                
+                if (nextMatchForLoser) {
+                    const field = nextMatchForLoser.home_team_label === loserLabel ? "home_team_id" : "away_team_id";
+                    if (String(nextMatchForLoser[field]) !== String(loserTeamId)) {
+                        await matches.updateOne(
+                            { _id: nextMatchForLoser._id },
+                            { $set: { [field]: loserTeamId } }
+                        );
+                        results.push({ advanced: true, matchId: match.id, nextMatchId: nextMatchForLoser.id, loserTeamId, field, type: "loser" });
+                    }
+                }
+            }
+        }
+    }
+    
+    return results;
+}
+
 module.exports = {
     advanceRoundOf32Match,
     advanceRoundOf32Winners,
+    advanceKnockoutWinners,
     getWinnerTeamId,
     isFinished,
     isRoundOf32

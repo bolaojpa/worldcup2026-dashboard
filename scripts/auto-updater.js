@@ -24,7 +24,7 @@ require("dotenv").config();
 const { MongoClient } = require("mongodb");
 const fs = require("fs");
 const path = require("path");
-const { advanceRoundOf32Winners } = require("../services/knockoutBracket");
+const { advanceRoundOf32Winners, advanceKnockoutWinners } = require("../services/knockoutBracket");
 
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URL || "mongodb://127.0.0.1:27017/worldcup2026";
 const DB_NAME = process.env.DB_NAME || undefined;
@@ -250,10 +250,10 @@ async function fullSync() {
       } catch {}
     }
     const updated = await syncMatches(allMatches, db);
-    const advancements = await advanceRoundOf32Winners(db, MATCH_COLLECTION);
+    const advancements = await advanceKnockoutWinners(db, MATCH_COLLECTION);
     await updateStandings(db);
     const advanced = advancements.filter(result => result.advanced).length;
-    console.log(`[auto-updater] Full sync done: ${updated} matches updated, ${advanced} R32 winners advanced, standings recalculated`);
+    console.log(`[auto-updater] Full sync done: ${updated} matches updated, ${advanced} winners advanced, standings recalculated`);
   } finally { await client.close(); }
 }
 
@@ -267,10 +267,10 @@ async function poll() {
     const db = DB_NAME ? client.db(DB_NAME) : client.db();
     const todayMatches = await fetchVarzesh3(0);
     await syncMatches(todayMatches, db);
-    const advancements = await advanceRoundOf32Winners(db, MATCH_COLLECTION);
+    const advancements = await advanceKnockoutWinners(db, MATCH_COLLECTION);
     for (const result of advancements) {
       if (result.advanced) {
-        console.log(`[auto-updater] Team ${result.winnerTeamId} advanced to match ${result.nextMatchId}`);
+        console.log(`[auto-updater] Team ${result.winnerTeamId || result.loserTeamId} advanced to match ${result.nextMatchId} as ${result.type}`);
       }
     }
 
