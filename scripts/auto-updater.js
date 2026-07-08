@@ -78,20 +78,59 @@ async function fetchEvents(matchId) {
     );
     const events = await res.json();
     const homeGoals = [], awayGoals = [];
+    const homePenScorers = [], homePenMisses = [];
+    const awayPenScorers = [], awayPenMisses = [];
+
     for (const e of events) {
-      if (e.eventType === 1 || e.eventType === 3) { // Goals + Penalties
+      if (e.eventType === 1 || e.eventType === 3) { // Goals + Regular Penalties
+        if (e.eventType === 3 && e.penaltyResult === 3) continue; // Skip missed penalties
         const id = e.strikerId || e.kickerId || "";
         const name = getPlayerName(id, e.strickerName || e.kickerName || "Goal");
         const time = e.time || "";
         const pen = e.eventType === 3 ? "(p)" : "";
         homeGoals.push(...(e.side === 0 ? [`"${name} ${time}'${pen}"`] : []));
         awayGoals.push(...(e.side === 1 ? [`"${name} ${time}'${pen}"`] : []));
+      } else if (e.eventType === 6) { // Penalty Shootout
+        const id = e.kickerId || "";
+        const name = getPlayerName(id, e.kickerName || "Player");
+        if (e.side === 0) { // Home
+          if (e.penaltyResult === 1) {
+            homePenScorers.push(`"${name}"`);
+          } else if (e.penaltyResult === 3) {
+            homePenMisses.push(`"${name}"`);
+          }
+        } else if (e.side === 1) { // Away
+          if (e.penaltyResult === 1) {
+            awayPenScorers.push(`"${name}"`);
+          } else if (e.penaltyResult === 3) {
+            awayPenMisses.push(`"${name}"`);
+          }
+        }
       }
     }
-    return {
+
+    const data = {
       home_scorers: homeGoals.length ? `{${homeGoals.join(",")}}` : "null",
       away_scorers: awayGoals.length ? `{${awayGoals.join(",")}}` : "null",
     };
+
+    if (homePenScorers.length > 0 || homePenMisses.length > 0 || awayPenScorers.length > 0 || awayPenMisses.length > 0) {
+      data.home_penalty_score = String(homePenScorers.length);
+      data.away_penalty_score = String(awayPenScorers.length);
+      data.home_penalty_scorers = homePenScorers.length ? `{${homePenScorers.join(",")}}` : "null";
+      data.home_penalty_misses = homePenMisses.length ? `{${homePenMisses.join(",")}}` : "null";
+      data.away_penalty_scorers = awayPenScorers.length ? `{${awayPenScorers.join(",")}}` : "null";
+      data.away_penalty_misses = awayPenMisses.length ? `{${awayPenMisses.join(",")}}` : "null";
+    } else {
+      data.home_penalty_score = "null";
+      data.away_penalty_score = "null";
+      data.home_penalty_scorers = "null";
+      data.home_penalty_misses = "null";
+      data.away_penalty_scorers = "null";
+      data.away_penalty_misses = "null";
+    }
+
+    return data;
   } catch { return null; }
 }
 
@@ -134,12 +173,18 @@ async function syncMatches(v3Matches, db) {
       if (scorers) {
         newData.home_scorers = scorers.home_scorers;
         newData.away_scorers = scorers.away_scorers;
+        newData.home_penalty_score = scorers.home_penalty_score;
+        newData.away_penalty_score = scorers.away_penalty_score;
+        newData.home_penalty_scorers = scorers.home_penalty_scorers;
+        newData.home_penalty_misses = scorers.home_penalty_misses;
+        newData.away_penalty_scorers = scorers.away_penalty_scorers;
+        newData.away_penalty_misses = scorers.away_penalty_misses;
       }
     }
 
     if (match.home_score !== newData.home_score || match.away_score !== newData.away_score ||
         match.time_elapsed !== newData.time_elapsed || match.finished !== newData.finished ||
-        match.home_scorers !== newData.home_scorers) {
+        match.home_scorers !== newData.home_scorers || match.home_penalty_score !== newData.home_penalty_score) {
       await matches.updateOne({ _id: match._id }, { $set: newData });
       updated++;
     }
