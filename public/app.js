@@ -991,7 +991,8 @@ function renderMatches() {
                             <span class="team-name-mobile">${homeTeam.fifa_code || "TBD"}</span>
                         </div>
                         <div class="match-list-score">
-                            ${homeScore} ${homePen ? `<span class="penalties-suffix" style="font-size: 0.8em; color: var(--text-secondary); margin-left: 0.15rem; font-weight: normal;">${homePen}</span>` : ''}
+                            ${homeScore}
+                            ${homePen ? `<span class="penalties-suffix">${homePen}</span>` : ''}
                         </div>
                     </div>
                     <div class="match-list-team ${awayClass}">
@@ -1001,7 +1002,8 @@ function renderMatches() {
                             <span class="team-name-mobile">${awayTeam.fifa_code || "TBD"}</span>
                         </div>
                         <div class="match-list-score">
-                            ${awayScore} ${awayPen ? `<span class="penalties-suffix" style="font-size: 0.8em; color: var(--text-secondary); margin-left: 0.15rem; font-weight: normal;">${awayPen}</span>` : ''}
+                            ${awayScore}
+                            ${awayPen ? `<span class="penalties-suffix">${awayPen}</span>` : ''}
                         </div>
                     </div>
                 </div>

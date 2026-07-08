@@ -582,10 +582,21 @@ body {
     font-size: 1.1rem;
     font-weight: 800;
     color: var(--text-primary);
-    width: auto;
-    min-width: 30px;
+    width: 20px;
     text-align: right;
+    position: relative;
+}
+
+.penalties-suffix {
+    position: absolute;
+    left: 100%;
+    margin-left: 0.25rem;
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    font-weight: normal;
     white-space: nowrap;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* Coluna 3: Status Badge */
@@ -1603,6 +1614,18 @@ body.menu-open {
         color: var(--text-primary) !important;
         width: auto !important;
         text-align: right !important;
+        position: relative !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+
+    .match-list-score .penalties-suffix {
+        position: static !important;
+        transform: none !important;
+        margin-left: 0.25rem !important;
+        font-size: 0.8em !important;
+        color: var(--text-secondary) !important;
+        font-weight: normal !important;
     }
 
     /* Style changes for match details modal on mobile */
