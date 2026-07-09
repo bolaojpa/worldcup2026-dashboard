@@ -1814,3 +1814,61 @@ body.menu-open {
         font-size: 0.95rem;
     }
 }
+
+/* Goal Celebration Overlay Banner */
+.goal-celebration-banner {
+    position: fixed;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -20%) scale(0.8);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 2px solid var(--accent-color);
+    border-radius: 24px;
+    padding: 2rem 4rem;
+    z-index: 10005;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: goalBannerEnter 0.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.goal-celebration-banner.fade-out {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.8);
+    transition: all 0.5s ease-in;
+}
+
+@keyframes goalBannerEnter {
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+}
+
+.goal-celebration-banner .goal-label {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--accent-color);
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+    margin: 0;
+    animation: pulse 1s infinite alternate;
+}
+
+.goal-celebration-banner .goal-team {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 0.5rem;
+}
+
+.goal-celebration-banner .goal-score-popup {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}

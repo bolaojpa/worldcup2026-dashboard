@@ -122,6 +122,137 @@ function playSound(type) {
     });
 }
 
+const teamColorMap = {
+    'Argentina': ['#74acdf', '#ffffff', '#ffd700'],
+    'Brasil': ['#ffd700', '#009c3b', '#ffffff'],
+    'França': ['#002395', '#ffffff', '#ed2939'],
+    'Marrocos': ['#c1272d', '#006233'],
+    'Espanha': ['#c1272d', '#f1bf00'],
+    'Bélgica': ['#000000', '#ffd700', '#ff0000'],
+    'Noruega': ['#ba0c2f', '#ffffff', '#00205b'],
+    'Inglaterra': ['#ffffff', '#cf142b'],
+    'Suíça': ['#da291c', '#ffffff'],
+    'Colômbia': ['#fcd116', '#003893', '#ce1126'],
+    'Alemanha': ['#000000', '#dd0000', '#ffcf00'],
+    'Portugal': ['#006600', '#ff0000', '#ffff00'],
+    'Uruguai': ['#5bc2e7', '#ffffff', '#fcd116'],
+    'Itália': ['#008c45', '#f4f9ff', '#cd212a'],
+    'EUA': ['#3c3b6e', '#ffffff', '#b22234']
+};
+
+function triggerGoalCelebration(teamName, scoreText, teamColors) {
+    // 1. Play sound
+    playSound('goal');
+
+    // 2. Confetti effect on Canvas
+    const canvas = document.createElement('canvas');
+    canvas.id = 'celebration-canvas';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '10000';
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const resizeHandler = () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resizeHandler);
+
+    const particles = [];
+    const colors = teamColors && teamColors.length ? teamColors : ['#38bdf8', '#ffffff'];
+
+    // Generate particles
+    for (let i = 0; i < 150; i++) {
+        particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height - height,
+            r: Math.random() * 6 + 4,
+            d: Math.random() * height,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            tilt: Math.random() * 10 - 5,
+            tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+            tiltAngle: 0,
+            speed: Math.random() * 3 + 2
+        });
+    }
+
+    let animationId;
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        let active = false;
+        particles.forEach(p => {
+            p.tiltAngle += p.tiltAngleIncremental;
+            p.y += p.speed;
+            p.x += Math.sin(p.tiltAngle) * 0.5;
+
+            ctx.beginPath();
+            ctx.lineWidth = p.r;
+            ctx.strokeStyle = p.color;
+            ctx.moveTo(p.x + p.r + p.tilt, p.y);
+            ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+            ctx.stroke();
+
+            if (p.y < height) {
+                active = true;
+            }
+        });
+
+        if (active) {
+            animationId = requestAnimationFrame(draw);
+        } else {
+            cleanup();
+        }
+    }
+
+    function cleanup() {
+        cancelAnimationFrame(animationId);
+        window.removeEventListener('resize', resizeHandler);
+        if (canvas.parentNode) {
+            canvas.parentNode.removeChild(canvas);
+        }
+    }
+
+    draw();
+
+    // 3. Goal Banner Overlay
+    const banner = document.createElement('div');
+    banner.className = 'goal-celebration-banner';
+    banner.innerHTML = `
+        <div class="goal-label">GOOOOL!</div>
+        <div class="goal-team">${teamName.toUpperCase()}</div>
+        <div class="goal-score-popup">${scoreText}</div>
+    `;
+    document.body.appendChild(banner);
+
+    // Fade out banner and confetti after 5 seconds
+    setTimeout(() => {
+        banner.classList.add('fade-out');
+        setTimeout(() => {
+            if (banner.parentNode) banner.parentNode.removeChild(banner);
+            cleanup();
+        }, 1000);
+    }, 5000);
+}
+
+function setupTestButton() {
+    const btn = document.getElementById('test-goal-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+        // Trigger Brazil goal as test
+        triggerGoalCelebration('Brasil', 'Gol! BRASIL 1 x 0 ARGENTINA', teamColorMap['Brasil']);
+    });
+}
+
 // Elements
 const spinner = document.getElementById('loading-spinner');
 const tabs = document.querySelectorAll('.tab-btn');
@@ -233,6 +364,7 @@ function parseScorers(scorers) {
 // Init
 async function init() {
     setupSoundToggle();
+    setupTestButton();
     setupHamburger();
     setupTabs();
     setupFilters();
@@ -612,8 +744,16 @@ async function fetchAllData(silent = false) {
                             const wasLive = oldMatch.time_elapsed !== 'notstarted' && oldMatch.time_elapsed !== 'finished';
 
                             if (isLive || wasLive) {
-                                if (newHome > oldHome || newAway > oldAway) {
-                                    playSound('goal');
+                                if (newHome > oldHome) {
+                                    const team = state.teams.find(t => t.id === newMatch.home_team_id);
+                                    const teamName = team ? team.name_en : 'Casa';
+                                    const colors = teamColorMap[teamName] || ['#38bdf8', '#ffffff'];
+                                    triggerGoalCelebration(teamName, `Gol! ${newMatch.home_score} - ${newMatch.away_score}`, colors);
+                                } else if (newAway > oldAway) {
+                                    const team = state.teams.find(t => t.id === newMatch.away_team_id);
+                                    const teamName = team ? team.name_en : 'Fora';
+                                    const colors = teamColorMap[teamName] || ['#38bdf8', '#ffffff'];
+                                    triggerGoalCelebration(teamName, `Gol! ${newMatch.home_score} - ${newMatch.away_score}`, colors);
                                 }
                             }
 
