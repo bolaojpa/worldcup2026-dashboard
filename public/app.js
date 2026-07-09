@@ -74,8 +74,53 @@ const state = {
     visibleMatchesCount: 15,
     selectedGroupFilter: null,
     espnTeams: [],
-    squadsCache: {}
+    squadsCache: {},
+    soundEnabled: false
 };
+
+function setupSoundToggle() {
+    const btn = document.getElementById('sound-toggle-btn');
+    if (!btn) return;
+
+    // Check localStorage for saved sound settings
+    const saved = localStorage.getItem('sound_enabled');
+    if (saved === 'true') {
+        state.soundEnabled = true;
+        btn.classList.add('active');
+        btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        btn.title = "Desativar efeitos sonoros";
+    }
+
+    btn.addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        localStorage.setItem('sound_enabled', state.soundEnabled);
+
+        if (state.soundEnabled) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            btn.title = "Desativar efeitos sonoros";
+
+            // Unblock audio policy in browser
+            const audio = new Audio('/goal.mp3');
+            audio.volume = 0; // Play silently to unlock
+            audio.play().catch(() => {});
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+            btn.title = "Ativar efeitos sonoros";
+        }
+    });
+}
+
+function playSound(type) {
+    if (!state.soundEnabled) return;
+
+    const file = type === 'goal' ? '/goal.mp3' : '/arbitro.mp3';
+    const audio = new Audio(file);
+    audio.play().catch(e => {
+        console.warn('Erro ao reproduzir som:', e);
+    });
+}
 
 // Elements
 const spinner = document.getElementById('loading-spinner');
@@ -187,6 +232,7 @@ function parseScorers(scorers) {
 
 // Init
 async function init() {
+    setupSoundToggle();
     setupHamburger();
     setupTabs();
     setupFilters();
@@ -551,6 +597,46 @@ async function fetchAllData(silent = false) {
         if (mRes.ok) {
             const mData = await mRes.json();
             if (mData && mData.games) {
+                // Compare matches to trigger sound effects
+                if (state.matches && state.matches.length > 0) {
+                    mData.games.forEach(newMatch => {
+                        const oldMatch = state.matches.find(m => m.id === newMatch.id);
+                        if (oldMatch) {
+                            // 1. Goal Sound Trigger
+                            const oldHome = parseInt(oldMatch.home_score) || 0;
+                            const oldAway = parseInt(oldMatch.away_score) || 0;
+                            const newHome = parseInt(newMatch.home_score) || 0;
+                            const newAway = parseInt(newMatch.away_score) || 0;
+
+                            const isLive = newMatch.time_elapsed !== 'notstarted' && newMatch.time_elapsed !== 'finished';
+                            const wasLive = oldMatch.time_elapsed !== 'notstarted' && oldMatch.time_elapsed !== 'finished';
+
+                            if (isLive || wasLive) {
+                                if (newHome > oldHome || newAway > oldAway) {
+                                    playSound('goal');
+                                }
+                            }
+
+                            // 2. Whistle Sound Triggers
+                            // Game start
+                            if (oldMatch.time_elapsed === 'notstarted' && newMatch.time_elapsed !== 'notstarted' && newMatch.time_elapsed !== 'finished') {
+                                playSound('arbitro');
+                            }
+                            // Start of half-time (Intervalo)
+                            else if (oldMatch.time_elapsed !== 'Intervalo' && newMatch.time_elapsed === 'Intervalo') {
+                                playSound('arbitro');
+                            }
+                            // Start of second half
+                            else if (oldMatch.time_elapsed === 'Intervalo' && newMatch.time_elapsed !== 'Intervalo' && newMatch.time_elapsed !== 'finished') {
+                                playSound('arbitro');
+                            }
+                            // End of game
+                            else if ((oldMatch.finished !== 'TRUE' && oldMatch.finished !== true) && (newMatch.finished === 'TRUE' || newMatch.finished === true || newMatch.time_elapsed === 'finished')) {
+                                playSound('arbitro');
+                            }
+                        }
+                    });
+                }
                 state.matches = mData.games;
             }
         } else {
