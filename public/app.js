@@ -112,8 +112,8 @@ function setupSoundToggle() {
     });
 }
 
-function playSound(type) {
-    if (!state.soundEnabled) return;
+function playSound(type, force = false) {
+    if (!state.soundEnabled && !force) return;
 
     const file = type === 'goal' ? '/goal.mp3' : '/arbitro.mp3';
     const audio = new Audio(file);
@@ -140,9 +140,9 @@ const teamColorMap = {
     'EUA': ['#3c3b6e', '#ffffff', '#b22234']
 };
 
-function triggerGoalCelebration(teamName, scoreText, teamColors) {
+function triggerGoalCelebration(teamName, scoreText, teamColors, forceSound = false) {
     // 1. Play sound
-    playSound('goal');
+    playSound('goal', forceSound);
 
     // 2. Confetti effect on Canvas
     const canvas = document.createElement('canvas');
@@ -248,8 +248,8 @@ function setupTestButton() {
     if (!btn) return;
 
     btn.addEventListener('click', () => {
-        // Trigger Brazil goal as test
-        triggerGoalCelebration('Brasil', 'Gol! BRASIL 1 x 0 ARGENTINA', teamColorMap['Brasil']);
+        // Trigger Brazil goal as test - forceSound = true to play regardless of mute toggle
+        triggerGoalCelebration('Brasil', 'Gol! BRASIL 1 x 0 ARGENTINA', teamColorMap['Brasil'], true);
     });
 }
 
