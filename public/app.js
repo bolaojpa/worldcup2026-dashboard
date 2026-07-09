@@ -74,53 +74,8 @@ const state = {
     visibleMatchesCount: 15,
     selectedGroupFilter: null,
     espnTeams: [],
-    squadsCache: {},
-    soundEnabled: false
+    squadsCache: {}
 };
-
-function setupSoundToggle() {
-    const btn = document.getElementById('sound-toggle-btn');
-    if (!btn) return;
-
-    // Check localStorage for saved sound settings
-    const saved = localStorage.getItem('sound_enabled');
-    if (saved === 'true') {
-        state.soundEnabled = true;
-        btn.classList.add('active');
-        btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-        btn.title = "Desativar efeitos sonoros";
-    }
-
-    btn.addEventListener('click', () => {
-        state.soundEnabled = !state.soundEnabled;
-        localStorage.setItem('sound_enabled', state.soundEnabled);
-
-        if (state.soundEnabled) {
-            btn.classList.add('active');
-            btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-            btn.title = "Desativar efeitos sonoros";
-
-            // Unblock audio policy in browser
-            const audio = new Audio('/goal.mp3');
-            audio.volume = 0; // Play silently to unlock
-            audio.play().catch(() => {});
-        } else {
-            btn.classList.remove('active');
-            btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-            btn.title = "Ativar efeitos sonoros";
-        }
-    });
-}
-
-function playSound(type, force = false) {
-    if (!state.soundEnabled && !force) return;
-
-    const file = type === 'goal' ? '/goal.mp3' : '/arbitro.mp3';
-    const audio = new Audio(file);
-    audio.play().catch(e => {
-        console.warn('Erro ao reproduzir som:', e);
-    });
-}
 
 const teamColorMap = {
     'Argentina': ['#74acdf', '#ffffff', '#ffd700'],
@@ -140,11 +95,8 @@ const teamColorMap = {
     'EUA': ['#3c3b6e', '#ffffff', '#b22234']
 };
 
-function triggerGoalCelebration(teamName, scoreText, teamColors, forceSound = false) {
-    // 1. Play sound
-    playSound('goal', forceSound);
-
-    // 2. Confetti effect on Canvas
+function triggerGoalCelebration(teamName, scoreText, teamColors) {
+    // 1. Confetti effect on Canvas
     const canvas = document.createElement('canvas');
     canvas.id = 'celebration-canvas';
     canvas.style.position = 'fixed';
@@ -243,15 +195,7 @@ function triggerGoalCelebration(teamName, scoreText, teamColors, forceSound = fa
     }, 5000);
 }
 
-function setupTestButton() {
-    const btn = document.getElementById('test-goal-btn');
-    if (!btn) return;
 
-    btn.addEventListener('click', () => {
-        // Trigger Brazil goal as test - forceSound = true to play regardless of mute toggle
-        triggerGoalCelebration('Brasil', 'Gol! BRASIL 1 x 0 ARGENTINA', teamColorMap['Brasil'], true);
-    });
-}
 
 // Elements
 const spinner = document.getElementById('loading-spinner');
@@ -363,8 +307,6 @@ function parseScorers(scorers) {
 
 // Init
 async function init() {
-    setupSoundToggle();
-    setupTestButton();
     setupHamburger();
     setupTabs();
     setupFilters();
@@ -755,24 +697,6 @@ async function fetchAllData(silent = false) {
                                     const colors = teamColorMap[teamName] || ['#38bdf8', '#ffffff'];
                                     triggerGoalCelebration(teamName, `Gol! ${newMatch.home_score} - ${newMatch.away_score}`, colors);
                                 }
-                            }
-
-                            // 2. Whistle Sound Triggers
-                            // Game start
-                            if (oldMatch.time_elapsed === 'notstarted' && newMatch.time_elapsed !== 'notstarted' && newMatch.time_elapsed !== 'finished') {
-                                playSound('arbitro');
-                            }
-                            // Start of half-time (Intervalo)
-                            else if (oldMatch.time_elapsed !== 'Intervalo' && newMatch.time_elapsed === 'Intervalo') {
-                                playSound('arbitro');
-                            }
-                            // Start of second half
-                            else if (oldMatch.time_elapsed === 'Intervalo' && newMatch.time_elapsed !== 'Intervalo' && newMatch.time_elapsed !== 'finished') {
-                                playSound('arbitro');
-                            }
-                            // End of game
-                            else if ((oldMatch.finished !== 'TRUE' && oldMatch.finished !== true) && (newMatch.finished === 'TRUE' || newMatch.finished === true || newMatch.time_elapsed === 'finished')) {
-                                playSound('arbitro');
                             }
                         }
                     });
