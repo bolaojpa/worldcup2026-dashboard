@@ -1,5 +1,6 @@
 const API_BASE = '/get';
 const PLACEHOLDER_FLAG = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 18 12'%3E%3Crect width='18' height='12' rx='2' fill='rgba(255,255,255,0.08)'/%3E%3C/svg%3E";
+const PLACEHOLDER_AVATAR = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
 const teamTranslations = {
     "Mexico": "México",
@@ -1011,11 +1012,11 @@ function showMatchDetails(matchId, isOpening = false) {
     if (match.lineups) {
         const renderRoster = (teamLineup, teamName) => {
             const startersList = (teamLineup.starters || []).map(p => {
-                const photo = p.photo || 'https://a.espncdn.com/combiner/i?img=/i/headshots/noscript-soccer.png&w=64&h=64';
+                const photo = p.photo || PLACEHOLDER_AVATAR;
                 return `
                     <div class="lineup-player-row">
                         <span class="lineup-jersey-number">${p.number}</span>
-                        <img class="lineup-player-photo" src="${photo}" alt="${p.name}" onerror="this.src='https://a.espncdn.com/combiner/i?img=/i/headshots/noscript-soccer.png&w=64&h=64'">
+                        <img class="lineup-player-photo" src="${photo}" alt="${p.name}" onerror="this.onerror=null; this.src=PLACEHOLDER_AVATAR;">
                         <div class="lineup-player-meta">
                             <span class="lineup-player-name-text">${p.name}</span>
                             <span class="lineup-player-position-text">${p.position}</span>
@@ -1025,11 +1026,11 @@ function showMatchDetails(matchId, isOpening = false) {
             }).join('');
             
             const subsList = (teamLineup.substitutes || []).map(p => {
-                const photo = p.photo || 'https://a.espncdn.com/combiner/i?img=/i/headshots/noscript-soccer.png&w=64&h=64';
+                const photo = p.photo || PLACEHOLDER_AVATAR;
                 return `
                     <div class="lineup-player-row">
                         <span class="lineup-jersey-number">${p.number}</span>
-                        <img class="lineup-player-photo" src="${photo}" alt="${p.name}" onerror="this.src='https://a.espncdn.com/combiner/i?img=/i/headshots/noscript-soccer.png&w=64&h=64'">
+                        <img class="lineup-player-photo" src="${photo}" alt="${p.name}" onerror="this.onerror=null; this.src=PLACEHOLDER_AVATAR;">
                         <div class="lineup-player-meta">
                             <span class="lineup-player-name-text">${p.name}</span>
                             <span class="lineup-player-position-text">${p.position}</span>
