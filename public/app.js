@@ -1012,11 +1012,9 @@ function showMatchDetails(matchId, isOpening = false) {
     if (match.lineups) {
         const renderRoster = (teamLineup, teamName) => {
             const startersList = (teamLineup.starters || []).map(p => {
-                const photo = p.photo || PLACEHOLDER_AVATAR;
                 return `
                     <div class="lineup-player-row">
                         <span class="lineup-jersey-number">${p.number}</span>
-                        <img class="lineup-player-photo" src="${photo}" alt="${p.name}" onerror="this.onerror=null; this.src=PLACEHOLDER_AVATAR;">
                         <div class="lineup-player-meta">
                             <span class="lineup-player-name-text">${p.name}</span>
                             <span class="lineup-player-position-text">${p.position}</span>
@@ -1026,11 +1024,9 @@ function showMatchDetails(matchId, isOpening = false) {
             }).join('');
             
             const subsList = (teamLineup.substitutes || []).map(p => {
-                const photo = p.photo || PLACEHOLDER_AVATAR;
                 return `
                     <div class="lineup-player-row">
                         <span class="lineup-jersey-number">${p.number}</span>
-                        <img class="lineup-player-photo" src="${photo}" alt="${p.name}" onerror="this.onerror=null; this.src=PLACEHOLDER_AVATAR;">
                         <div class="lineup-player-meta">
                             <span class="lineup-player-name-text">${p.name}</span>
                             <span class="lineup-player-position-text">${p.position}</span>
