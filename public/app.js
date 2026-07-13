@@ -330,8 +330,11 @@ async function init() {
         // Se a tela de detalhes (modal) estiver aberta, atualiza a tela de detalhes (somente para jogos ao vivo)
         if (state.activeDetailsMatchId) {
             const activeMatch = state.matches.find(m => m.id == state.activeDetailsMatchId);
-            if (activeMatch && activeMatch.finished !== "TRUE") {
-                showMatchDetails(state.activeDetailsMatchId, true);
+            if (activeMatch) {
+                const isFinished = activeMatch.finished === "TRUE" || activeMatch.finished === true || activeMatch.time_elapsed === "finished";
+                if (!isFinished) {
+                    showMatchDetails(state.activeDetailsMatchId, false);
+                }
             }
         }
     }, 10000);
@@ -828,13 +831,13 @@ function determineWinner(match) {
     return { isHomeWinner: false, isAwayWinner: false, isDraw: true };
 }
 
-function showMatchDetails(matchId, isRefresh = false) {
+function showMatchDetails(matchId, isOpening = false) {
     state.activeDetailsMatchId = matchId; // Salva o ID ativo para auto-refresh
     const match = state.matches.find(m => m.id == matchId);
     if (!match) return;
 
-    // Se for abertura (não refresh), reseta para aba 'Resumo'
-    if (!isRefresh) {
+    // Se for abertura (isOpening === true), reseta para aba 'Resumo'
+    if (isOpening) {
         state.activeModalTab = 'summary';
     }
 
@@ -1315,7 +1318,7 @@ function renderMatches() {
 
             const matchItem = document.createElement('div');
             matchItem.className = 'match-list-item';
-            matchItem.addEventListener('click', () => showMatchDetails(match.id));
+            matchItem.addEventListener('click', () => showMatchDetails(match.id, true));
 
             matchItem.innerHTML = `
                 <div class="match-list-meta">
@@ -1678,7 +1681,7 @@ function renderBracketMatch(matchId, label) {
         : `<img src="${awayTeam.flag}" class="bracket-flag" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en}', 'bottom')" onerror="this.src=PLACEHOLDER_FLAG">`;
 
     return `
-        <div class="bracket-match-card" onclick="showMatchDetails('${match.id}')">
+        <div class="bracket-match-card" onclick="showMatchDetails('${match.id}', true)">
             <div class="bracket-match-header">
                 <span style="color:var(--text-secondary); font-size:0.75rem;">${dateStr}</span>
                 <span style="color:var(--accent-color); font-weight:800">${statusText}</span>
