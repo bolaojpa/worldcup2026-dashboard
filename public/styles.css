@@ -1825,3 +1825,275 @@ body.menu-open {
     color: var(--text-secondary);
     margin-top: 0.5rem;
 }
+
+/* Match Details Modal Tabs & Scout */
+.modal-tabs {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.25rem;
+}
+
+.modal-tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-tab-btn:hover {
+    color: #fff;
+}
+
+.modal-tab-btn.active {
+    color: var(--accent-color);
+}
+
+.modal-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--accent-color);
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+/* Tab content wrappers */
+.modal-tab-content {
+    display: none;
+    animation: modalTabFade 0.4s ease forwards;
+}
+
+.modal-tab-content.active {
+    display: block;
+}
+
+@keyframes modalTabFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scout Stats Styling */
+.scout-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 2rem 0 1rem 0;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.scout-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.stat-row {
+    margin-bottom: 1.25rem;
+}
+
+.stat-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}
+
+.stat-name {
+    color: #fff;
+    text-transform: capitalize;
+}
+
+.stat-bar-wrapper {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    display: flex;
+    overflow: hidden;
+}
+
+.stat-bar-fill {
+    height: 100%;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-bar-fill.home {
+    background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.stat-bar-fill.away {
+    background: linear-gradient(90deg, #f43f5e, #e11d48);
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+/* Cards & Timeline events */
+.cards-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.card-event-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.card-badge {
+    width: 14px;
+    height: 20px;
+    border-radius: 3px;
+    display: inline-block;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+
+.card-badge.yellow {
+    background: #f59e0b;
+}
+
+.card-badge.red {
+    background: #ef4444;
+}
+
+/* Lineups View */
+.lineups-view-container {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.lineups-team-column {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.lineup-team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.lineup-team-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.lineup-formation-badge {
+    font-size: 0.8rem;
+    background: var(--accent-color);
+    color: #0f172a;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+}
+
+.lineup-section-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin: 1.5rem 0 0.75rem 0;
+}
+
+.lineup-players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lineup-player-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.lineup-player-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.lineup-jersey-number {
+    width: 24px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.lineup-player-photo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.lineup-player-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.lineup-player-name-text {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.lineup-player-position-text {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+    .lineups-view-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

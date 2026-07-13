@@ -484,6 +484,25 @@ function setupDetailsView() {
             if (e.target === modal) closeModal();
         });
     }
+
+    // Configurar navegação de abas no modal de detalhes
+    const tabs = document.querySelectorAll('.modal-tab-btn');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const targetTab = tab.getAttribute('data-modal-tab');
+            const contents = document.querySelectorAll('.modal-tab-content');
+            contents.forEach(c => {
+                if (c.id === `modal-tab-${targetTab}`) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+        });
+    });
 }
 
 async function fetchEspnTeams() {
@@ -808,6 +827,16 @@ function showMatchDetails(matchId) {
     const match = state.matches.find(m => m.id == matchId);
     if (!match) return;
 
+    // Resetar abas do modal para 'Resumo' (Summary) ao abrir
+    const tabBtns = document.querySelectorAll('.modal-tab-btn');
+    tabBtns.forEach(t => {
+        if (t.getAttribute('data-modal-tab') === 'summary') {
+            t.classList.add('active');
+        } else {
+            t.classList.remove('active');
+        }
+    });
+
     const stageTitle = match.type === 'group' ? (match.group ? `Fase de Grupos - Grupo ${match.group}` : 'Fase de Grupos') : (phaseTranslations[match.type] || 'Mata-Mata');
     const modalTitleEl = document.getElementById('modal-stage-title');
     if (modalTitleEl) modalTitleEl.innerText = stageTitle;
@@ -873,6 +902,7 @@ function showMatchDetails(matchId) {
         `;
     }
 
+    // Informações da partida
     const infoHtml = `
         <div class="details-info-section">
             <div class="info-row">
@@ -898,6 +928,132 @@ function showMatchDetails(matchId) {
             </div>
         </div>
     `;
+
+    // Cartões disciplinários
+    let cardsHtml = '';
+    if (match.cards && match.cards.length > 0) {
+        const cardsList = match.cards.map(c => {
+            const sideText = c.team === 'home' ? 'Casa' : 'Fora';
+            const badgeClass = c.type === 'red' ? 'red' : 'yellow';
+            const cardName = c.type === 'red' ? 'Cartão Vermelho' : 'Cartão Amarelo';
+            return `
+                <div class="card-event-item">
+                    <span class="card-badge ${badgeClass}" title="${cardName}"></span>
+                    <span style="font-weight:600; color:#fff;">${c.player}</span> 
+                    <span style="color:var(--text-secondary); font-size:0.8rem;">(${sideText} · ${c.minute}')</span>
+                </div>
+            `;
+        }).join('');
+        cardsHtml = `
+            <div class="scout-title"><i class="fa-solid fa-clone"></i> Cartões Disciplinares</div>
+            <div class="cards-timeline">${cardsList}</div>
+        `;
+    }
+
+    // Estatísticas da partida (Scout)
+    let scoutHtml = '';
+    if (match.scout && Object.keys(match.scout).length > 0) {
+        const scoutRows = Object.entries(match.scout).map(([statName, valObj]) => {
+            const homeValStr = valObj.home || '0';
+            const awayValStr = valObj.away || '0';
+            
+            const homeNum = parseFloat(homeValStr) || 0;
+            const awayNum = parseFloat(awayValStr) || 0;
+            const total = homeNum + awayNum || 1;
+            const homePct = (homeNum / total) * 100;
+            const awayPct = (awayNum / total) * 100;
+            
+            const formattedName = statName
+                .replace(/([A-Z])/g, ' $1')
+                .replace('Committed', '')
+                .replace('won', 'Ganhos ')
+                .replace('yellow', 'Cartões Amarelos')
+                .replace('red', 'Cartões Vermelhos')
+                .trim();
+            
+            return `
+                <div class="stat-row">
+                    <div class="stat-label-row">
+                        <span>${homeValStr}</span>
+                        <span class="stat-name">${formattedName}</span>
+                        <span>${awayValStr}</span>
+                    </div>
+                    <div class="stat-bar-wrapper">
+                        <div class="stat-bar-fill home" style="width: ${homePct}%"></div>
+                        <div class="stat-bar-fill away" style="width: ${awayPct}%"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        scoutHtml = `
+            <div class="scout-title"><i class="fa-solid fa-chart-bar"></i> Estatísticas da Partida (Scout)</div>
+            <div class="scout-container">${scoutRows}</div>
+        `;
+    }
+
+    // Escalações (Lineups)
+    let lineupsHtml = '';
+    if (match.lineups) {
+        const renderRoster = (teamLineup, teamName) => {
+            const startersList = (teamLineup.starters || []).map(p => {
+                const photo = p.photo || 'https://a.espncdn.com/combiner/i?img=/i/headshots/noscript-soccer.png&w=64&h=64';
+                return `
+                    <div class="lineup-player-row">
+                        <span class="lineup-jersey-number">${p.number}</span>
+                        <img class="lineup-player-photo" src="${photo}" alt="${p.name}" onerror="this.src='https://a.espncdn.com/combiner/i?img=/i/headshots/noscript-soccer.png&w=64&h=64'">
+                        <div class="lineup-player-meta">
+                            <span class="lineup-player-name-text">${p.name}</span>
+                            <span class="lineup-player-position-text">${p.position}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            const subsList = (teamLineup.substitutes || []).map(p => {
+                const photo = p.photo || 'https://a.espncdn.com/combiner/i?img=/i/headshots/noscript-soccer.png&w=64&h=64';
+                return `
+                    <div class="lineup-player-row">
+                        <span class="lineup-jersey-number">${p.number}</span>
+                        <img class="lineup-player-photo" src="${photo}" alt="${p.name}" onerror="this.src='https://a.espncdn.com/combiner/i?img=/i/headshots/noscript-soccer.png&w=64&h=64'">
+                        <div class="lineup-player-meta">
+                            <span class="lineup-player-name-text">${p.name}</span>
+                            <span class="lineup-player-position-text">${p.position}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            return `
+                <div class="lineups-team-column">
+                    <div class="lineup-team-header">
+                        <span class="lineup-team-name">${teamName}</span>
+                        ${teamLineup.formation ? `<span class="lineup-formation-badge">${teamLineup.formation}</span>` : ''}
+                    </div>
+                    <div class="lineup-section-title">Titulares</div>
+                    <div class="lineup-players-list">${startersList}</div>
+                    ${subsList.length > 0 ? `
+                        <div class="lineup-section-title">Reservas</div>
+                        <div class="lineup-players-list">${subsList}</div>
+                    ` : ''}
+                </div>
+            `;
+        };
+        
+        lineupsHtml = `
+            <div class="lineups-view-container">
+                ${renderRoster(match.lineups.home, translateTeamName(homeTeam.name_en))}
+                ${renderRoster(match.lineups.away, translateTeamName(awayTeam.name_en))}
+            </div>
+        `;
+    } else {
+        lineupsHtml = `
+            <div style="text-align:center; color:var(--text-secondary); padding: 3rem 0;">
+                <i class="fa-solid fa-shirt" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <div>Escalações indisponíveis para esta partida.</div>
+            </div>
+        `;
+    }
 
     const displayHomeScore = match.time_elapsed === 'notstarted' ? '' : (match.home_score || 0);
     const displayAwayScore = match.time_elapsed === 'notstarted' ? '' : (match.away_score || 0);
@@ -926,8 +1082,29 @@ function showMatchDetails(matchId) {
                 ${statusHtml}
             </div>
         </div>
-        ${scorersHtml}
-        ${infoHtml}
+        
+        <!-- Tab 1: Resumo -->
+        <div class="modal-tab-content active" id="modal-tab-summary">
+            ${scorersHtml}
+            ${cardsHtml}
+            ${scoutHtml}
+            ${!scorersHtml && !cardsHtml && !scoutHtml ? `
+                <div style="text-align:center; color:var(--text-secondary); padding: 3rem 0;">
+                    <i class="fa-solid fa-hourglass" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <div>A partida ainda não começou. Detalhes aparecerão assim que a bola rolar!</div>
+                </div>
+            ` : ''}
+        </div>
+        
+        <!-- Tab 2: Escalações -->
+        <div class="modal-tab-content" id="modal-tab-lineups">
+            ${lineupsHtml}
+        </div>
+        
+        <!-- Tab 3: Informações -->
+        <div class="modal-tab-content" id="modal-tab-info">
+            ${infoHtml}
+        </div>
     `;
 
     const modal = document.getElementById('match-details-modal');
