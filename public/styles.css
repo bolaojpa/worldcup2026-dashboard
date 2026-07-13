@@ -1874,7 +1874,6 @@ body.menu-open {
 /* Tab content wrappers */
 .modal-tab-content {
     display: none;
-    animation: modalTabFade 0.4s ease forwards;
 }
 
 .modal-tab-content.active {

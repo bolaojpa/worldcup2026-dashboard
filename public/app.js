@@ -74,7 +74,8 @@ const state = {
     visibleMatchesCount: 15,
     selectedGroupFilter: null,
     espnTeams: [],
-    squadsCache: {}
+    squadsCache: {},
+    activeModalTab: 'summary'
 };
 
 const teamColorMap = {
@@ -326,9 +327,12 @@ async function init() {
         renderGroups();
         renderBracket();
 
-        // Se a tela de detalhes (modal) estiver aberta, atualiza a tela de detalhes
+        // Se a tela de detalhes (modal) estiver aberta, atualiza a tela de detalhes (somente para jogos ao vivo)
         if (state.activeDetailsMatchId) {
-            showMatchDetails(state.activeDetailsMatchId);
+            const activeMatch = state.matches.find(m => m.id == state.activeDetailsMatchId);
+            if (activeMatch && activeMatch.finished !== "TRUE") {
+                showMatchDetails(state.activeDetailsMatchId, true);
+            }
         }
     }, 10000);
 }
@@ -493,6 +497,8 @@ function setupDetailsView() {
             tab.classList.add('active');
 
             const targetTab = tab.getAttribute('data-modal-tab');
+            state.activeModalTab = targetTab;
+            
             const contents = document.querySelectorAll('.modal-tab-content');
             contents.forEach(c => {
                 if (c.id === `modal-tab-${targetTab}`) {
@@ -822,15 +828,20 @@ function determineWinner(match) {
     return { isHomeWinner: false, isAwayWinner: false, isDraw: true };
 }
 
-function showMatchDetails(matchId) {
+function showMatchDetails(matchId, isRefresh = false) {
     state.activeDetailsMatchId = matchId; // Salva o ID ativo para auto-refresh
     const match = state.matches.find(m => m.id == matchId);
     if (!match) return;
 
-    // Resetar abas do modal para 'Resumo' (Summary) ao abrir
+    // Se for abertura (não refresh), reseta para aba 'Resumo'
+    if (!isRefresh) {
+        state.activeModalTab = 'summary';
+    }
+
+    const currentActiveTab = state.activeModalTab || 'summary';
     const tabBtns = document.querySelectorAll('.modal-tab-btn');
     tabBtns.forEach(t => {
-        if (t.getAttribute('data-modal-tab') === 'summary') {
+        if (t.getAttribute('data-modal-tab') === currentActiveTab) {
             t.classList.add('active');
         } else {
             t.classList.remove('active');
@@ -1084,7 +1095,7 @@ function showMatchDetails(matchId) {
         </div>
         
         <!-- Tab 1: Resumo -->
-        <div class="modal-tab-content active" id="modal-tab-summary">
+        <div class="modal-tab-content ${currentActiveTab === 'summary' ? 'active' : ''}" id="modal-tab-summary">
             ${scorersHtml}
             ${cardsHtml}
             ${scoutHtml}
@@ -1097,12 +1108,12 @@ function showMatchDetails(matchId) {
         </div>
         
         <!-- Tab 2: Escalações -->
-        <div class="modal-tab-content" id="modal-tab-lineups">
+        <div class="modal-tab-content ${currentActiveTab === 'lineups' ? 'active' : ''}" id="modal-tab-lineups">
             ${lineupsHtml}
         </div>
         
         <!-- Tab 3: Informações -->
-        <div class="modal-tab-content" id="modal-tab-info">
+        <div class="modal-tab-content ${currentActiveTab === 'info' ? 'active' : ''}" id="modal-tab-info">
             ${infoHtml}
         </div>
     `;
