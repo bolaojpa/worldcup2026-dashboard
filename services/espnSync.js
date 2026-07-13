@@ -162,9 +162,9 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
                             const playerInfo = {
                                 id: p.athlete?.id || "",
                                 name: p.athlete?.displayName || "",
-                                number: p.uniform || "",
-                                position: p.athlete?.position?.abbreviation || "",
-                                photo: p.athlete?.headshot?.href || ""
+                                number: p.jersey || p.uniform || "",
+                                position: p.position?.abbreviation || "",
+                                photo: p.athlete?.id ? `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${p.athlete.id}.png&w=96&h=96` : ""
                             };
                             if (p.starter) {
                                 lineups[side].starters.push(playerInfo);
