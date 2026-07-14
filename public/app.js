@@ -1222,16 +1222,11 @@ function renderMatches() {
     let currentGroup = null;
 
     matchesToShow.forEach(match => {
-        let groupKey = '';
-        if (state.activeFilter === 'knockout') {
-            groupKey = phaseTranslations[match.type] || 'Mata-Mata';
-        } else {
-            const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
-            const weekday = dateObj.toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'America/Sao_Paulo' }).substring(0, 3).toUpperCase().replace(/\./g, '');
-            const day = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', timeZone: 'America/Sao_Paulo' });
-            const month = dateObj.toLocaleDateString('pt-BR', { month: 'short', timeZone: 'America/Sao_Paulo' }).substring(0, 3).toUpperCase().replace(/\./g, '');
-            groupKey = `${weekday} ${day} ${month}`;
-        }
+        const dateObj = parseLocalDateToBrasilia(match.local_date, match.stadium_id);
+        const weekday = dateObj.toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'America/Sao_Paulo' }).substring(0, 3).toUpperCase().replace(/\./g, '');
+        const day = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', timeZone: 'America/Sao_Paulo' });
+        const month = dateObj.toLocaleDateString('pt-BR', { month: 'short', timeZone: 'America/Sao_Paulo' }).substring(0, 3).toUpperCase().replace(/\./g, '');
+        const groupKey = `${weekday} ${day} ${month}`;
         
         if (!currentGroup || currentGroup.header !== groupKey) {
             currentGroup = { header: groupKey, matches: [] };
@@ -1276,7 +1271,16 @@ function renderMatches() {
                 }
             }
 
-            const stageText = match.type === 'group' ? (match.group ? `Grupo ${match.group}` : 'Grupo') : (phaseTranslations[match.type] || 'Mata-Mata');
+            // Determinar rótulos da fase e grupo conforme o tipo de partida
+            let mainLabel = '';
+            let subLabel = '';
+            if (match.type === 'group') {
+                mainLabel = match.group ? `Grupo ${match.group}` : 'Grupo';
+                subLabel = 'Fase de Grupos';
+            } else {
+                mainLabel = 'Mata-Mata';
+                subLabel = phaseTranslations[match.type] || 'Fase Final';
+            }
 
             // Status Badge
             let statusHtml = '';
@@ -1319,7 +1323,9 @@ function renderMatches() {
 
             matchItem.innerHTML = `
                 <div class="match-list-meta">
-                    <span class="phase" title="${stageText}">${stageText}</span>
+                    <span class="phase-main" title="${mainLabel}">${mainLabel}</span>
+                    <span class="phase-sub" title="${subLabel}">${subLabel}</span>
+                    <span class="match-time"><i class="fa-regular fa-clock"></i> ${timeStr}</span>
                 </div>
                 <div class="match-list-teams">
                     <div class="match-list-team ${homeClass}">

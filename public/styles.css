@@ -526,23 +526,40 @@ body {
 .match-list-meta {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.15rem;
+    min-width: 110px;
 }
 
-.match-list-meta .phase {
-    font-size: 0.7rem;
+.phase-main {
+    font-size: 0.75rem;
     font-weight: 800;
     color: var(--accent-color);
     text-transform: uppercase;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100px;
+    max-width: 120px;
 }
 
-.match-list-meta .time {
-    font-size: 0.8rem;
+.phase-sub {
+    font-size: 0.65rem;
+    font-weight: 700;
     color: var(--text-secondary);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.match-time {
+    font-size: 0.75rem;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.1rem;
 }
 
 /* Coluna 2: Times (Layout empilhado semelhante à IMAGEM 2) */
@@ -1549,7 +1566,7 @@ body.menu-open {
         gap: 0.5rem !important;
     }
 
-    .match-list-meta .phase {
+    .phase-main {
         max-width: none !important;
         font-size: 0.75rem !important;
         color: var(--text-secondary) !important;
@@ -1557,10 +1574,15 @@ body.menu-open {
         text-transform: uppercase !important;
     }
 
-    .match-list-meta .time {
+    .phase-sub {
+        display: none !important;
+    }
+
+    .match-time {
         font-size: 0.75rem !important;
         color: var(--text-secondary) !important;
         font-weight: 600 !important;
+        margin-top: 0 !important;
     }
 
     .match-list-status {
