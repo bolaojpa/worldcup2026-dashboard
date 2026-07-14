@@ -1278,8 +1278,8 @@ function renderMatches() {
                 mainLabel = match.group ? `Grupo ${match.group}` : 'Grupo';
                 subLabel = 'Fase de Grupos';
             } else {
-                mainLabel = 'Mata-Mata';
-                subLabel = phaseTranslations[match.type] || 'Fase Final';
+                mainLabel = phaseTranslations[match.type] || 'Fase Final';
+                subLabel = '';
             }
 
             // Status Badge
@@ -1324,7 +1324,7 @@ function renderMatches() {
             matchItem.innerHTML = `
                 <div class="match-list-meta">
                     <span class="phase-main" title="${mainLabel}">${mainLabel}</span>
-                    <span class="phase-sub" title="${subLabel}">${subLabel}</span>
+                    ${subLabel ? `<span class="phase-sub" title="${subLabel}">${subLabel}</span>` : ''}
                     <span class="match-time"><i class="fa-regular fa-clock"></i> ${timeStr}</span>
                 </div>
                 <div class="match-list-teams">
