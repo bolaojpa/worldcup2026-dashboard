@@ -21,23 +21,28 @@ function normalizeTeamName(name) {
     return n;
 }
 
-async function fetchESPNMatches(datesRange = "20260611-20260720") {
+async function fetchESPNMatches(datesRange = "", leagueSlug = "fifa.world") {
     try {
-        const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?limit=150&dates=${datesRange}`;
-        const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+        let url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueSlug}/scoreboard?limit=500`;
+        if (datesRange) {
+            url += `&dates=${datesRange}`;
+        }
+        const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
         if (!res.ok) return [];
         const data = await res.json();
         return data.events || [];
     } catch (e) {
-        console.error("[espn-sync] Error fetching ESPN scoreboard:", e.message);
+        console.error(`[espn-sync] Error fetching ESPN scoreboard for ${leagueSlug}:`, e.message);
         return [];
     }
 }
 
-async function syncMatches(espnEvents, db, matchCollection = "games") {
-  const dbTeams = await db.collection("teams").find({}).toArray();
-  const dbGames = await db.collection(matchCollection).find({}).toArray();
+async function syncMatches(espnEvents, db, matchCollection = "games", leagueSlug = "fifa.world") {
+  const teamsCol = db.collection("teams");
   const matchesCol = db.collection(matchCollection);
+  
+  const dbTeams = await teamsCol.find({ league_id: leagueSlug }).toArray();
+  const dbGames = await matchesCol.find({ league_id: leagueSlug }).toArray();
   
   let updated = 0;
   
@@ -49,22 +54,53 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
     const awayCompetitor = comp.competitors?.find(c => c.homeAway === 'away');
     if (!homeCompetitor || !awayCompetitor) continue;
     
-    const homeName = homeCompetitor.team?.displayName;
-    const awayName = awayCompetitor.team?.displayName;
+    const homeName = homeCompetitor.team?.displayName || homeCompetitor.team?.name || "Home";
+    const awayName = awayCompetitor.team?.displayName || awayCompetitor.team?.name || "Away";
     
-    // Find matching game in DB by matching home and away names
-    const matchedGame = dbGames.find(g => {
-        const dbHome = dbTeams.find(t => t.id === g.home_team_id);
-        const dbAway = dbTeams.find(t => t.id === g.away_team_id);
-        if (!dbHome || !dbAway) return false;
-        
-        return (normalizeTeamName(dbHome.name_en) === normalizeTeamName(homeName) &&
-                normalizeTeamName(dbAway.name_en) === normalizeTeamName(awayName));
-    });
-    
-    if (!matchedGame) {
-        continue;
+    // Ensure teams exist in database for this league
+    let dbHome = dbTeams.find(t => 
+        (t.espn_id && t.espn_id === homeCompetitor.team?.id) ||
+        normalizeTeamName(t.name_en) === normalizeTeamName(homeName)
+    );
+    if (!dbHome) {
+        const nextIdStr = String((await teamsCol.countDocuments()) + 1);
+        const newTeam = {
+            id: nextIdStr,
+            name_en: homeName,
+            flag: homeCompetitor.team?.logo || "https://a.espncdn.com/i/teamlogos/default-team-logo.png",
+            fifa_code: homeCompetitor.team?.abbreviation || homeName.substring(0, 3).toUpperCase(),
+            league_id: leagueSlug,
+            espn_id: homeCompetitor.team?.id
+        };
+        await teamsCol.insertOne(newTeam);
+        dbHome = newTeam;
+        dbTeams.push(newTeam);
     }
+    
+    let dbAway = dbTeams.find(t => 
+        (t.espn_id && t.espn_id === awayCompetitor.team?.id) ||
+        normalizeTeamName(t.name_en) === normalizeTeamName(awayName)
+    );
+    if (!dbAway) {
+        const nextIdStr = String((await teamsCol.countDocuments()) + 1);
+        const newTeam = {
+            id: nextIdStr,
+            name_en: awayName,
+            flag: awayCompetitor.team?.logo || "https://a.espncdn.com/i/teamlogos/default-team-logo.png",
+            fifa_code: awayCompetitor.team?.abbreviation || awayName.substring(0, 3).toUpperCase(),
+            league_id: leagueSlug,
+            espn_id: awayCompetitor.team?.id
+        };
+        await teamsCol.insertOne(newTeam);
+        dbAway = newTeam;
+        dbTeams.push(newTeam);
+    }
+    
+    // Find matching game in DB
+    let matchedGame = dbGames.find(g => {
+        if (g.espn_id && g.espn_id === event.id) return true;
+        return (g.home_team_id === dbHome.id && g.away_team_id === dbAway.id);
+    });
     
     const isFinished = event.status?.type?.completed === true || event.status?.type?.state === 'post';
     const isLive = event.status?.type?.state === 'in';
@@ -117,8 +153,11 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         homePenaltyScore = String(homeCompetitor.shootoutScore || "0");
         awayPenaltyScore = String(awayCompetitor.shootoutScore || "0");
     }
-
+    
     const updateDoc = {
+        espn_id: event.id,
+        home_team_id: dbHome.id,
+        away_team_id: dbAway.id,
         home_score: String(homeScore),
         away_score: String(awayScore),
         time_elapsed: timeElapsed,
@@ -127,51 +166,70 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         away_scorers: awayGoals.length ? `{${awayGoals.join(",")}}` : "null",
         home_penalty_score: homePenaltyScore,
         away_penalty_score: awayPenaltyScore,
-        cards: cards
+        cards: cards,
+        league_id: leagueSlug
     };
+
+    // If game doesn't exist, insert it
+    if (!matchedGame) {
+        const nextGameIdStr = String((await matchesCol.countDocuments()) + 1);
+        const matchday = event.season?.slug || event.week || 1;
+        const newGame = {
+            id: nextGameIdStr,
+            local_date: event.date,
+            stadium_id: "1",
+            type: event.season?.type === 3 ? "knockout_16" : "group",
+            group: String(matchday),
+            matchday: String(matchday),
+            ...updateDoc
+        };
+        await matchesCol.insertOne(newGame);
+        dbGames.push(newGame);
+        updated++;
+        continue;
+    }
     
     if (isLive || isFinished) {
         try {
-            const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=${event.id}`;
-            const summaryRes = await fetch(summaryUrl, { signal: AbortSignal.timeout(6000) });
-            if (summaryRes.ok) {
-                const summaryData = await summaryRes.json();
+            const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueSlug}/summary?event=${event.id}`;
+            const sumRes = await fetch(summaryUrl, { signal: AbortSignal.timeout(8000) });
+            if (sumRes.ok) {
+                const summaryData = await sumRes.json();
                 
-                // Extract statistics (Scout)
-                const scout = {};
-                if (summaryData.boxscore?.teams) {
-                    summaryData.boxscore.teams.forEach(t => {
-                        const side = t.homeAway === 'home' ? 'home' : 'away';
-                        t.statistics?.forEach(s => {
-                            if (!scout[s.name]) scout[s.name] = {};
-                            scout[s.name][side] = s.displayValue;
-                        });
+                // Parse Scout
+                const statistics = summaryData.boxscore?.teams;
+                if (statistics && Array.isArray(statistics) && statistics.length === 2) {
+                    const homeStats = statistics.find(s => String(s.team?.id) === String(homeCompetitor.team?.id))?.statistics || [];
+                    const awayStats = statistics.find(s => String(s.team?.id) === String(awayCompetitor.team?.id))?.statistics || [];
+                    
+                    const scoutObj = {};
+                    homeStats.forEach(hs => {
+                        const as = awayStats.find(a => a.name === hs.name);
+                        scoutObj[hs.name] = {
+                            home: hs.displayValue,
+                            away: as ? as.displayValue : "0"
+                        };
                     });
+                    updateDoc.scout = scoutObj;
                 }
-                updateDoc.scout = scout;
-                
-                // Extract rosters (Lineups)
-                const lineups = { home: { starters: [], substitutes: [], formation: "" }, away: { starters: [], substitutes: [], formation: "" } };
-                if (summaryData.rosters) {
-                    const rosterKeys = Object.keys(summaryData.rosters);
-                    rosterKeys.forEach(k => {
-                        const r = summaryData.rosters[k];
-                        const side = r.homeAway === 'home' ? 'home' : 'away';
-                        lineups[side].formation = r.formation || "";
-                        r.roster?.forEach(p => {
-                            const playerInfo = {
-                                id: p.athlete?.id || "",
-                                name: p.athlete?.displayName || "",
-                                number: p.jersey || p.uniform || "",
-                                position: p.position?.abbreviation || "",
-                                photo: p.athlete?.id ? `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${p.athlete.id}.png&w=96&h=96` : ""
-                            };
-                            if (p.starter) {
-                                lineups[side].starters.push(playerInfo);
-                            } else {
-                                lineups[side].substitutes.push(playerInfo);
-                            }
-                        });
+
+                // Parse Lineups
+                const rosters = summaryData.rosters;
+                const lineups = { home: [], away: [] };
+                if (rosters && Array.isArray(rosters)) {
+                    rosters.forEach(r => {
+                        const side = String(r.team?.id) === String(homeCompetitor.team?.id) ? 'home' : 'away';
+                        if (r.roster && Array.isArray(r.roster)) {
+                            r.roster.forEach(player => {
+                                lineups[side].push({
+                                    name: player.athlete?.displayName || player.athlete?.shortName || "Jogador",
+                                    jersey: player.jersey || "",
+                                    position: player.position?.abbreviation || "",
+                                    starter: player.starter === true,
+                                    substitute: player.substitute === true
+                                });
+                            });
+                        }
                     });
                 }
                 updateDoc.lineups = lineups;

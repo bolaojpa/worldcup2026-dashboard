@@ -38,6 +38,24 @@ async function getTeamsMap() {
     return teamMap;
 }
 
+// Leagues Get Route
+router.get('/leagues', async(req, res) => {
+    try {
+        const { INITIAL_LEAGUES } = require('../scripts/migrateToMultiLeague');
+        const db = require('../database').db;
+        let leagues = [];
+        if (db) {
+            leagues = await db.collection('leagues').find({ active: true }).sort({ order: 1 }).toArray();
+        }
+        if (!leagues || leagues.length === 0) {
+            leagues = INITIAL_LEAGUES;
+        }
+        return res.send({ leagues });
+    } catch(err) {
+        return res.status(400).send({ error: 'Error getting leagues', details: err.message });
+    }
+});
+
 // Group Get Routes
 
 /**
@@ -283,16 +301,12 @@ router.get('/teams', async(req,res) => {
     console.log('GET /teams called');
     try{
         let teams;
-        console.log('Query params:', req.query);
-        if(req.query.group) {
-            console.log('Filtering by group:', req.query.group);
-            teams = await Team.find({groups: req.query.group.toUpperCase()}).lean();
-        } else {
-            console.log('Getting all teams...');
-            teams = await Team.find({}).lean();
-            console.log('Found teams:', teams.length);
-        }
-        console.log('Sending response...');
+        const leagueId = req.query.league || req.query.league_id;
+        const filter = {};
+        if (leagueId) filter.league_id = leagueId;
+        if (req.query.group) filter.groups = req.query.group.toUpperCase();
+
+        teams = await Team.find(filter).lean();
         return res.status(200).json({teams});
     }catch(err){
         console.error('ERROR in /get/teams:', err);
@@ -348,13 +362,10 @@ router.get('/teams', async(req,res) => {
  */
 router.get('/games', async(req,res) => {
     try{
-        const now = Date.now();
-        if (allGamesCache && (now - allGamesCacheTime) < GAME_CACHE_TTL) {
-            return res.send({ games: allGamesCache });
-        }
+        const leagueId = req.query.league || req.query.league_id;
+        const filter = leagueId ? { league_id: leagueId } : {};
 
-        // Use lean() for faster queries
-        const games = await Game.find({}).lean();
+        const games = await Game.find(filter).lean();
 
         // Get team map from cache
         const teamMap = await getTeamsMap();

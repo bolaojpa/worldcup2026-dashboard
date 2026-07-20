@@ -71,6 +71,8 @@ const state = {
     groups: [],
     teams: [],
     stadiums: [],
+    leagues: [],
+    activeLeague: 'fifa.world',
     activeFilter: 'today',
     visibleMatchesCount: 15,
     selectedGroupFilter: null,
@@ -307,6 +309,58 @@ function parseScorers(scorers) {
     }
 }
 
+async function fetchLeagues() {
+    try {
+        const res = await fetch('/get/leagues');
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.leagues) {
+                state.leagues = data.leagues;
+            }
+        }
+    } catch (e) {
+        console.error('Error fetching leagues:', e);
+    }
+}
+
+function renderLeagueSelector() {
+    const container = document.getElementById('league-selector-container');
+    if (!container || !state.leagues.length) return;
+
+    container.innerHTML = state.leagues.map(league => {
+        const isActive = state.activeLeague === league.id;
+        return `
+            <button class="league-pill ${isActive ? 'active' : ''}" data-league-id="${league.id}">
+                <span>${league.flag || '⚽'}</span>
+                <span>${league.name}</span>
+            </button>
+        `;
+    }).join('');
+
+    container.querySelectorAll('.league-pill').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const selectedLeagueId = btn.getAttribute('data-league-id');
+            if (state.activeLeague === selectedLeagueId) return;
+
+            state.activeLeague = selectedLeagueId;
+            const currentLeagueObj = state.leagues.find(l => l.id === selectedLeagueId);
+            
+            // Update header title
+            const headerTitle = document.getElementById('header-title-text');
+            if (headerTitle && currentLeagueObj) {
+                headerTitle.textContent = currentLeagueObj.name;
+            }
+
+            renderLeagueSelector();
+            const spinner = document.getElementById('loading-spinner');
+            if (spinner) spinner.style.display = 'flex';
+            await fetchAllData();
+            renderAll();
+            if (spinner) spinner.style.display = 'none';
+        });
+    });
+}
+
 // Init
 async function init() {
     setupHamburger();
@@ -316,6 +370,9 @@ async function init() {
     setupSquadView();
     handleResponsiveLayout();
     window.addEventListener('resize', handleResponsiveLayout);
+    
+    await fetchLeagues();
+    renderLeagueSelector();
     await fetchAllData();
     fetchEspnTeams(); // Carrega os IDs da ESPN em segundo plano
     renderAll();
@@ -689,11 +746,12 @@ function renderSquad(athletes, container) {
 async function fetchAllData(silent = false) {
     if (!silent) spinner.style.display = 'flex';
     try {
-        const cacheBuster = Math.floor(Date.now() / 15000);
+        const cacheBuster = Date.now();
+        const leagueParam = state.activeLeague ? `&league=${state.activeLeague}` : '';
         const [mRes, gRes, tRes, sRes] = await Promise.all([
-            fetch(`${API_BASE}/games?t=${cacheBuster}`),
-            fetch(`${API_BASE}/groups?t=${cacheBuster}`),
-            fetch(`${API_BASE}/teams`),
+            fetch(`${API_BASE}/games?t=${cacheBuster}${leagueParam}`),
+            fetch(`${API_BASE}/groups?t=${cacheBuster}${leagueParam}`),
+            fetch(`${API_BASE}/teams?league=${state.activeLeague || ''}`),
             fetch(`${API_BASE}/stadiums`)
         ]);
 
