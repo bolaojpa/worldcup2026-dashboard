@@ -118,17 +118,17 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         awayPenaltyScore = String(awayCompetitor.shootoutScore || "0");
     }
 
+    // Formatar redes de transmissão brasileiras (TV Globo, SporTV, CazéTV)
+    const homeStr = (homeName || "").toLowerCase();
+    const awayStr = (awayName || "").toLowerCase();
+    const isBrazilGame = homeStr.includes("brazil") || homeStr.includes("brasil") || awayStr.includes("brazil") || awayStr.includes("brasil");
+    const isKnockout = matchedGame.type !== "group";
+    
     let broadcastStr = "";
-    if (comp.broadcasts && Array.isArray(comp.broadcasts)) {
-        const names = [];
-        comp.broadcasts.forEach(b => {
-            if (b.names && Array.isArray(b.names)) {
-                b.names.forEach(n => {
-                    if (n && !names.includes(n)) names.push(n);
-                });
-            }
-        });
-        broadcastStr = names.join(", ");
+    if (isBrazilGame || isKnockout) {
+        broadcastStr = "TV Globo, SporTV, CazéTV";
+    } else {
+        broadcastStr = "SporTV, CazéTV";
     }
     
     const updateDoc = {
