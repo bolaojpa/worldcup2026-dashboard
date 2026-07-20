@@ -118,7 +118,7 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         awayPenaltyScore = String(awayCompetitor.shootoutScore || "0");
     }
 
-    // Formatar redes de transmissão brasileiras (TV Globo, SporTV, CazéTV)
+    // Formatar redes de transmissão brasileiras (TV Globo, SporTV, CazéTV, Globoplay)
     const homeStr = (homeName || "").toLowerCase();
     const awayStr = (awayName || "").toLowerCase();
     const isBrazilGame = homeStr.includes("brazil") || homeStr.includes("brasil") || awayStr.includes("brazil") || awayStr.includes("brasil");
@@ -126,9 +126,9 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
     
     let broadcastStr = "";
     if (isBrazilGame || isKnockout) {
-        broadcastStr = "TV Globo, SporTV, CazéTV";
+        broadcastStr = "TV Globo, SporTV, CazéTV, Globoplay";
     } else {
-        broadcastStr = "SporTV, CazéTV";
+        broadcastStr = "SporTV, CazéTV, Globoplay";
     }
     
     const updateDoc = {
