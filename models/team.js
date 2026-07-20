@@ -6,6 +6,11 @@ const TeamSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    league_id: {
+        type: String,
+        default: "fifa.world",
+        index: true
+    },
     name_en: {
         type: String,
         required: true

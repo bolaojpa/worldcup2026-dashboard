@@ -11,6 +11,7 @@ const INITIAL_LEAGUES = [
         country: "Mundial",
         flag: "🏆",
         logo: "https://a.espncdn.com/i/leaguelogos/soccer/500/4.png",
+        type: "cup",
         active: true,
         order: 1
     },
@@ -22,6 +23,7 @@ const INITIAL_LEAGUES = [
         country: "Brasil",
         flag: "🇧🇷",
         logo: "https://a.espncdn.com/i/leaguelogos/soccer/500/85.png",
+        type: "league",
         active: true,
         order: 2
     },
@@ -33,6 +35,7 @@ const INITIAL_LEAGUES = [
         country: "Europa",
         flag: "🇪🇺",
         logo: "https://a.espncdn.com/i/leaguelogos/soccer/500/2.png",
+        type: "champions",
         active: true,
         order: 3
     },
@@ -44,6 +47,7 @@ const INITIAL_LEAGUES = [
         country: "Inglaterra",
         flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
         logo: "https://a.espncdn.com/i/leaguelogos/soccer/500/23.png",
+        type: "league",
         active: true,
         order: 4
     },
@@ -55,6 +59,7 @@ const INITIAL_LEAGUES = [
         country: "Espanha",
         flag: "🇪🇸",
         logo: "https://a.espncdn.com/i/leaguelogos/soccer/500/15.png",
+        type: "league",
         active: true,
         order: 5
     },
@@ -66,6 +71,7 @@ const INITIAL_LEAGUES = [
         country: "Itália",
         flag: "🇮🇹",
         logo: "https://a.espncdn.com/i/leaguelogos/soccer/500/12.png",
+        type: "league",
         active: true,
         order: 6
     }

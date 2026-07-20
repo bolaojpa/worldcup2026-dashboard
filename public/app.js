@@ -789,6 +789,23 @@ async function fetchAllData(silent = false) {
                     });
                 }
                 state.matches = mData.games;
+                // Auto-switch filter from 'today' to 'all' if no matches exist for today in selected league
+                if (state.matches && state.matches.length > 0) {
+                    const todayMatches = state.matches.filter(m => {
+                        const dateObj = parseLocalDateToBrasilia(m.local_date, m.stadium_id);
+                        const todayStr = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+                        return dateObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) === todayStr;
+                    });
+                    if (state.activeFilter === 'today' && todayMatches.length === 0) {
+                        state.activeFilter = 'all';
+                        const mobileSelect = document.getElementById('mobile-filter-select');
+                        if (mobileSelect) mobileSelect.value = 'all';
+                        document.querySelectorAll('.filter-btn').forEach(btn => {
+                            if (btn.dataset.filter === 'all') btn.classList.add('active');
+                            else btn.classList.remove('active');
+                        });
+                    }
+                }
             }
         } else {
             console.warn('Failed to fetch matches:', mRes.status);
@@ -843,7 +860,33 @@ function getTeamDetails(teamIdOrLabel, isLabel = false) {
     return state.teams.find(t => t.id == teamIdOrLabel) || { name_en: "A Definir", flag: PLACEHOLDER_FLAG };
 }
 
+function adaptUiForLeagueType() {
+    const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
+    const groupsTabBtn = document.querySelector('.tab-btn[data-tab="groups"]');
+    const classTabBtn = document.querySelector('.tab-btn[data-tab="classification"]');
+    const teamsTabBtn = document.querySelector('.tab-btn[data-tab="teams"]');
+    const groupFilterBtn = document.querySelector('.filter-btn[data-filter="group"]');
+    const knockoutFilterBtn = document.querySelector('.filter-btn[data-filter="knockout"]');
+
+    if (activeLeagueObj.type === 'league') {
+        // Point-based league (Brasileirão, Premier League, etc.)
+        if (groupsTabBtn) groupsTabBtn.style.display = 'none';
+        if (groupFilterBtn) groupFilterBtn.style.display = 'none';
+        if (knockoutFilterBtn) knockoutFilterBtn.style.display = 'none';
+        if (classTabBtn) classTabBtn.innerHTML = `<i class="fa-solid fa-list-ol"></i> Tabela de Pontos`;
+        if (teamsTabBtn) teamsTabBtn.innerHTML = `<i class="fa-solid fa-shield"></i> Times`;
+    } else {
+        // Tournament or Cup (Copa do Mundo, Champions League)
+        if (groupsTabBtn) groupsTabBtn.style.display = 'flex';
+        if (groupFilterBtn) groupFilterBtn.style.display = 'inline-block';
+        if (knockoutFilterBtn) knockoutFilterBtn.style.display = 'inline-block';
+        if (classTabBtn) classTabBtn.innerHTML = `<i class="fa-solid fa-sitemap"></i> Classificação`;
+        if (teamsTabBtn) teamsTabBtn.innerHTML = `<i class="fa-solid fa-flag"></i> Seleções`;
+    }
+}
+
 function renderAll() {
+    adaptUiForLeagueType();
     renderMatches();
     renderGroups();
     renderTeams();

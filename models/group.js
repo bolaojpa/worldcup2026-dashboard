@@ -5,8 +5,12 @@ const GroupSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true,
         uppercase: true
+    },
+    league_id: {
+        type: String,
+        default: "fifa.world",
+        index: true
     },
     teams: [{
         team_id: String,
