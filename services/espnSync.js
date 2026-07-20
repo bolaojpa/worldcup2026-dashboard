@@ -118,19 +118,6 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         awayPenaltyScore = String(awayCompetitor.shootoutScore || "0");
     }
 
-    // Formatar redes de transmissão brasileiras (TV Globo, SBT, SporTV, CazéTV, Globoplay)
-    const homeStr = (homeName || "").toLowerCase();
-    const awayStr = (awayName || "").toLowerCase();
-    const isBrazilGame = homeStr.includes("brazil") || homeStr.includes("brasil") || awayStr.includes("brazil") || awayStr.includes("brasil");
-    const isKnockout = matchedGame.type !== "group";
-    
-    let broadcastStr = "";
-    if (isBrazilGame || isKnockout) {
-        broadcastStr = "TV Globo, SBT, SporTV, CazéTV, Globoplay";
-    } else {
-        broadcastStr = "SporTV, CazéTV, Globoplay";
-    }
-    
     const updateDoc = {
         home_score: String(homeScore),
         away_score: String(awayScore),
@@ -140,8 +127,7 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         away_scorers: awayGoals.length ? `{${awayGoals.join(",")}}` : "null",
         home_penalty_score: homePenaltyScore,
         away_penalty_score: awayPenaltyScore,
-        cards: cards,
-        broadcast: broadcastStr
+        cards: cards
     };
     
     if (isLive || isFinished) {
@@ -205,7 +191,6 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         matchedGame.away_scorers !== updateDoc.away_scorers ||
         matchedGame.home_penalty_score !== updateDoc.home_penalty_score ||
         matchedGame.away_penalty_score !== updateDoc.away_penalty_score ||
-        matchedGame.broadcast !== updateDoc.broadcast ||
         JSON.stringify(matchedGame.cards) !== JSON.stringify(updateDoc.cards) ||
         JSON.stringify(matchedGame.scout) !== JSON.stringify(updateDoc.scout) ||
         JSON.stringify(matchedGame.lineups) !== JSON.stringify(updateDoc.lineups);

@@ -941,15 +941,6 @@ function showMatchDetails(matchId, isOpening = false) {
                     <span class="info-row-value">${match.type === 'group' ? `Fase de Grupos · Rodada ${match.matchday}` : (phaseTranslations[match.type] || 'Mata-Mata')}</span>
                 </div>
             </div>
-            ${match.broadcast ? `
-            <div class="info-row">
-                <i class="fa-solid fa-tv"></i>
-                <div class="info-row-content">
-                    <span class="info-row-label">Transmissão</span>
-                    <span class="info-row-value">${match.broadcast}</span>
-                </div>
-            </div>
-            ` : ''}
         </div>
     `;
 
@@ -1335,7 +1326,6 @@ function renderMatches() {
                     <span class="phase-main" title="${mainLabel}">${mainLabel}</span>
                     ${subLabel ? `<span class="phase-sub" title="${subLabel}">${subLabel}</span>` : ''}
                     <span class="match-time"><i class="fa-regular fa-clock"></i> ${timeStr}</span>
-                    ${match.broadcast ? `<span class="match-broadcast" title="${match.broadcast}"><i class="fa-solid fa-tv"></i> ${match.broadcast}</span>` : ''}
                 </div>
                 <div class="match-list-teams">
                     <div class="match-list-team ${homeClass}">
