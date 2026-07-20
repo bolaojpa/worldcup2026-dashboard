@@ -117,6 +117,19 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         homePenaltyScore = String(homeCompetitor.shootoutScore || "0");
         awayPenaltyScore = String(awayCompetitor.shootoutScore || "0");
     }
+
+    let broadcastStr = "";
+    if (comp.broadcasts && Array.isArray(comp.broadcasts)) {
+        const names = [];
+        comp.broadcasts.forEach(b => {
+            if (b.names && Array.isArray(b.names)) {
+                b.names.forEach(n => {
+                    if (n && !names.includes(n)) names.push(n);
+                });
+            }
+        });
+        broadcastStr = names.join(", ");
+    }
     
     const updateDoc = {
         home_score: String(homeScore),
@@ -127,7 +140,8 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         away_scorers: awayGoals.length ? `{${awayGoals.join(",")}}` : "null",
         home_penalty_score: homePenaltyScore,
         away_penalty_score: awayPenaltyScore,
-        cards: cards
+        cards: cards,
+        broadcast: broadcastStr
     };
     
     if (isLive || isFinished) {
@@ -191,6 +205,7 @@ async function syncMatches(espnEvents, db, matchCollection = "games") {
         matchedGame.away_scorers !== updateDoc.away_scorers ||
         matchedGame.home_penalty_score !== updateDoc.home_penalty_score ||
         matchedGame.away_penalty_score !== updateDoc.away_penalty_score ||
+        matchedGame.broadcast !== updateDoc.broadcast ||
         JSON.stringify(matchedGame.cards) !== JSON.stringify(updateDoc.cards) ||
         JSON.stringify(matchedGame.scout) !== JSON.stringify(updateDoc.scout) ||
         JSON.stringify(matchedGame.lineups) !== JSON.stringify(updateDoc.lineups);

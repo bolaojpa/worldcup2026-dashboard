@@ -562,6 +562,20 @@ body {
     margin-top: 0.1rem;
 }
 
+.match-broadcast {
+    font-size: 0.68rem;
+    color: var(--accent-color);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    margin-top: 0.1rem;
+}
+
 /* Coluna 2: Times (Layout empilhado semelhante à IMAGEM 2) */
 .match-list-teams {
     display: flex;
@@ -1582,6 +1596,16 @@ body.menu-open {
         font-size: 0.75rem !important;
         color: var(--text-secondary) !important;
         font-weight: 600 !important;
+        margin-top: 0 !important;
+    }
+
+    .match-broadcast {
+        font-size: 0.7rem !important;
+        color: var(--accent-color) !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 90px !important;
         margin-top: 0 !important;
     }
 
