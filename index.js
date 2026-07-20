@@ -263,4 +263,10 @@ app.use((error, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
+    try {
+        const { runMigration } = require('./scripts/migrateToMultiLeague');
+        runMigration().catch(err => console.error('Migration background error:', err.message));
+    } catch(e) {
+        console.error('Migration load error:', e.message);
+    }
 });

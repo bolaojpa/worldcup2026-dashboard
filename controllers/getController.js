@@ -153,7 +153,14 @@ router.get('/group', async(req,res) => {
 
 router.get('/groups', async(req,res) => {
     try{
-        const groups = await Group.find();
+        const leagueId = req.query.league || req.query.league_id || "fifa.world";
+        let filter = {};
+        if (leagueId === "fifa.world") {
+            filter = { $or: [{ league_id: "fifa.world" }, { league_id: { $exists: false } }, { league_id: null }, { league_id: "" }] };
+        } else {
+            filter = { league_id: leagueId };
+        }
+        const groups = await Group.find(filter);
 
         return res.send({groups});
     }catch(err){
@@ -301,9 +308,13 @@ router.get('/teams', async(req,res) => {
     console.log('GET /teams called');
     try{
         let teams;
-        const leagueId = req.query.league || req.query.league_id;
+        const leagueId = req.query.league || req.query.league_id || "fifa.world";
         const filter = {};
-        if (leagueId) filter.league_id = leagueId;
+        if (leagueId === "fifa.world") {
+            filter.$or = [{ league_id: "fifa.world" }, { league_id: { $exists: false } }, { league_id: null }, { league_id: "" }];
+        } else {
+            filter.league_id = leagueId;
+        }
         if (req.query.group) filter.groups = req.query.group.toUpperCase();
 
         teams = await Team.find(filter).lean();
@@ -362,8 +373,13 @@ router.get('/teams', async(req,res) => {
  */
 router.get('/games', async(req,res) => {
     try{
-        const leagueId = req.query.league || req.query.league_id;
-        const filter = leagueId ? { league_id: leagueId } : {};
+        const leagueId = req.query.league || req.query.league_id || "fifa.world";
+        let filter = {};
+        if (leagueId === "fifa.world") {
+            filter = { $or: [{ league_id: "fifa.world" }, { league_id: { $exists: false } }, { league_id: null }, { league_id: "" }] };
+        } else {
+            filter = { league_id: leagueId };
+        }
 
         const games = await Game.find(filter).lean();
 
@@ -384,9 +400,6 @@ router.get('/games', async(req,res) => {
             
             return game;
         });
-
-        allGamesCache = gamesWithNames;
-        allGamesCacheTime = now;
 
         return res.send({games: gamesWithNames});
     }catch(err){
