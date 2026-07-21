@@ -1810,9 +1810,98 @@ function renderBracketMatch(matchId, label) {
     `;
 }
 
-function renderBracket() {
+function renderPointsTable(standings, container, leagueObj) {
+    let rowsHtml = standings.map((item) => {
+        let zoneClass = '';
+        if (leagueObj.id === 'bra.1') {
+            if (item.rank <= 4) zoneClass = 'zone-g4';
+            else if (item.rank <= 6) zoneClass = 'zone-g6';
+            else if (item.rank <= 12) zoneClass = 'zone-sulamericana';
+            else if (item.rank >= 17) zoneClass = 'zone-z4';
+        } else {
+            if (item.rank <= 4) zoneClass = 'zone-g4';
+            else if (item.rank <= 6) zoneClass = 'zone-sulamericana';
+            else if (item.rank >= standings.length - 2) zoneClass = 'zone-z4';
+        }
+
+        return `
+            <tr class="${zoneClass}">
+                <td style="text-align: center; font-weight: bold; width: 40px;">${item.rank}</td>
+                <td style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700; text-align: left;">
+                    ${item.team.logo ? `<img src="${item.team.logo}" style="width: 24px; height: 24px; object-fit: contain;">` : ''}
+                    <span>${item.team.name}</span>
+                </td>
+                <td style="font-weight: 800; color: var(--accent-color);">${item.points}</td>
+                <td>${item.played}</td>
+                <td>${item.wins}</td>
+                <td>${item.draws}</td>
+                <td>${item.losses}</td>
+                <td>${item.goalsFor}</td>
+                <td>${item.goalsAgainst}</td>
+                <td style="font-weight: 600;">${item.goalDifference}</td>
+            </tr>
+        `;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="points-table-wrapper" style="width: 100%; max-width: 1000px; margin: 0 auto; overflow-x: auto; padding: 1rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <h2 style="font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;">
+                    <span>${leagueObj.flag || '🏆'}</span> Tabela de Classificação — ${leagueObj.name}
+                </h2>
+                <div class="table-legend" style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-secondary); flex-wrap: wrap;">
+                    <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: #38bdf8; border-radius: 2px;"></span> G-4 (Libertadores)</span>
+                    <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: #818cf8; border-radius: 2px;"></span> G-6 (Pré-Libertadores)</span>
+                    <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: #34d399; border-radius: 2px;"></span> Sul-Americana</span>
+                    <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: #f87171; border-radius: 2px;"></span> Z-4 (Rebaixamento)</span>
+                </div>
+            </div>
+            <table class="group-table points-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem;">
+                        <th style="padding: 0.75rem; text-align: center;">Pos</th>
+                        <th style="padding: 0.75rem; text-align: left;">Clube</th>
+                        <th style="padding: 0.75rem;">PTS</th>
+                        <th style="padding: 0.75rem;">PJ</th>
+                        <th style="padding: 0.75rem;">V</th>
+                        <th style="padding: 0.75rem;">E</th>
+                        <th style="padding: 0.75rem;">D</th>
+                        <th style="padding: 0.75rem;">GP</th>
+                        <th style="padding: 0.75rem;">GC</th>
+                        <th style="padding: 0.75rem;">SG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+async function renderBracket() {
     const container = document.getElementById('bracket-container');
     if (!container) return;
+
+    const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
+    if (activeLeagueObj.type === 'league') {
+        container.innerHTML = `
+            <div style="display:flex; justify-content:center; align-items:center; min-height: 200px; width: 100%;">
+                <div class="spinner"></div>
+            </div>
+        `;
+        try {
+            const res = await fetch(`/get/standings?league=${state.activeLeague}`);
+            const data = await res.json();
+            if (data && data.standings && data.standings.length > 0) {
+                renderPointsTable(data.standings, container, activeLeagueObj);
+                return;
+            }
+        } catch(e) {
+            console.error('Error rendering standings:', e);
+        }
+    }
+
     container.innerHTML = '';
 
     const columnsData = [

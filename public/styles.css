@@ -83,6 +83,30 @@ body {
     object-fit: contain;
 }
 
+/* Points Table Color Zones */
+tr.zone-g4 td:first-child {
+    border-left: 4px solid #38bdf8;
+    background: rgba(56, 189, 248, 0.08);
+}
+tr.zone-g6 td:first-child {
+    border-left: 4px solid #818cf8;
+    background: rgba(129, 140, 248, 0.08);
+}
+tr.zone-sulamericana td:first-child {
+    border-left: 4px solid #34d399;
+    background: rgba(52, 211, 153, 0.08);
+}
+tr.zone-z4 td:first-child {
+    border-left: 4px solid #f87171;
+    background: rgba(248, 113, 113, 0.08);
+}
+.points-table tbody tr {
+    transition: background 0.2s ease;
+}
+.points-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
 .glass-header {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);

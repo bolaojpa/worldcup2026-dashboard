@@ -564,4 +564,42 @@ router.get('/espn/roster/:id', async (req, res) => {
     }
 });
 
+// Standings Route for Point-Based Leagues
+router.get('/standings', async (req, res) => {
+    try {
+        const leagueId = req.query.league || req.query.league_id || 'bra.1';
+        const standingsUrl = `https://site.api.espn.com/apis/v2/sports/soccer/${leagueId}/standings`;
+        const response = await fetch(standingsUrl, { signal: AbortSignal.timeout(8000) });
+        if (!response.ok) return res.status(400).json({ error: 'Failed to fetch standings from ESPN' });
+        const data = await response.json();
+        
+        const entries = data.children?.[0]?.standings?.entries || [];
+        const formattedStandings = entries.map((e, idx) => {
+            const getStat = (name) => e.stats?.find(s => s.name === name)?.displayValue || '0';
+            return {
+                rank: idx + 1,
+                team: {
+                    id: e.team?.id,
+                    name: e.team?.displayName || e.team?.name,
+                    shortName: e.team?.shortDisplayName || e.team?.abbreviation,
+                    logo: e.team?.logos?.[0]?.href || ''
+                },
+                played: getStat('gamesPlayed'),
+                wins: getStat('wins'),
+                draws: getStat('ties'),
+                losses: getStat('losses'),
+                goalsFor: getStat('pointsFor'),
+                goalsAgainst: getStat('pointsAgainst'),
+                goalDifference: getStat('pointDifferential'),
+                points: getStat('points')
+            };
+        });
+        
+        return res.status(200).json({ league_id: leagueId, standings: formattedStandings });
+    } catch (err) {
+        console.error('Error fetching standings:', err);
+        return res.status(500).json({ error: 'Error fetching standings', details: err.message });
+    }
+});
+
 module.exports = app => app.use('/get', router);
