@@ -1454,9 +1454,9 @@ function renderMatches() {
                 <div class="match-list-teams">
                     <div class="match-list-team ${homeClass}">
                         <div class="match-team-info">
-                            <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" onerror="this.src=PLACEHOLDER_FLAG">
+                            <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" class="team-crest-img" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en.replace(/'/g, "\\'")}')" onerror="this.src=PLACEHOLDER_FLAG">
                             <span class="team-name-desktop">${homeTeam.name_en}</span>
-                            <span class="team-name-mobile">${homeTeam.fifa_code || "TBD"}</span>
+                            <span class="team-name-mobile" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en.replace(/'/g, "\\'")}')">${homeTeam.fifa_code || "TBD"}</span>
                         </div>
                         <div class="match-list-score">
                             ${homeScore}
@@ -1465,9 +1465,9 @@ function renderMatches() {
                     </div>
                     <div class="match-list-team ${awayClass}">
                         <div class="match-team-info">
-                            <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" onerror="this.src=PLACEHOLDER_FLAG">
+                            <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" class="team-crest-img" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en.replace(/'/g, "\\'")}')" onerror="this.src=PLACEHOLDER_FLAG">
                             <span class="team-name-desktop">${awayTeam.name_en}</span>
-                            <span class="team-name-mobile">${awayTeam.fifa_code || "TBD"}</span>
+                            <span class="team-name-mobile" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en.replace(/'/g, "\\'")}')">${awayTeam.fifa_code || "TBD"}</span>
                         </div>
                         <div class="match-list-score">
                             ${awayScore}
@@ -1731,18 +1731,20 @@ window.showFlagTooltip = (el, name, position = 'top') => {
     if (!tooltip) {
         tooltip = document.createElement('div');
         tooltip.id = 'flag-tooltip';
-        tooltip.style.position = 'absolute';
+        tooltip.style.position = 'fixed';
         tooltip.style.background = 'rgba(15, 23, 42, 0.95)';
-        tooltip.style.border = '1px solid var(--accent-color)';
-        tooltip.style.borderRadius = '4px';
+        tooltip.style.border = '1.5px solid var(--accent-color)';
+        tooltip.style.borderRadius = '8px';
         tooltip.style.color = '#fff';
-        tooltip.style.padding = '0.25rem 0.5rem';
-        tooltip.style.fontSize = '0.75rem';
+        tooltip.style.padding = '0.4rem 0.75rem';
+        tooltip.style.fontSize = '0.8rem';
         tooltip.style.pointerEvents = 'none';
-        tooltip.style.zIndex = '9999';
-        tooltip.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
-        tooltip.style.transition = 'opacity 0.2s';
+        tooltip.style.zIndex = '99999';
+        tooltip.style.boxShadow = '0 6px 20px rgba(0,0,0,0.6)';
+        tooltip.style.transition = 'opacity 0.2s ease';
         tooltip.style.fontWeight = 'bold';
+        tooltip.style.backdropFilter = 'blur(8px)';
+        tooltip.style.whiteSpace = 'nowrap';
         document.body.appendChild(tooltip);
     }
 
@@ -1750,15 +1752,6 @@ window.showFlagTooltip = (el, name, position = 'top') => {
     tooltip.style.opacity = '1';
     
     const rect = el.getBoundingClientRect();
-    tooltip.style.left = `${rect.left + window.scrollX + (rect.width/2) - (tooltip.offsetWidth/2)}px`;
-    
-    if (position === 'top') {
-        tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 8}px`;
-    } else {
-        tooltip.style.top = `${rect.bottom + window.scrollY + 8}px`;
-    }
-
-    if (window.tooltipTimeout) clearTimeout(window.tooltipTimeout);
     window.tooltipTimeout = setTimeout(() => {
         tooltip.style.opacity = '0';
     }, 2000);
