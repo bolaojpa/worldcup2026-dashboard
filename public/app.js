@@ -865,12 +865,14 @@ function adaptUiForLeagueType() {
     const groupsTabBtn = document.querySelector('.tab-btn[data-tab="groups"]');
     const classTabBtn = document.querySelector('.tab-btn[data-tab="classification"]');
     const teamsTabBtn = document.querySelector('.tab-btn[data-tab="teams"]');
+    const stadiumsTabBtn = document.querySelector('.tab-btn[data-tab="stadiums"]');
     const groupFilterBtn = document.querySelector('.filter-btn[data-filter="group"]');
     const knockoutFilterBtn = document.querySelector('.filter-btn[data-filter="knockout"]');
 
     if (activeLeagueObj.type === 'league') {
         // Point-based league (Brasileirão, Premier League, etc.)
         if (groupsTabBtn) groupsTabBtn.style.display = 'none';
+        if (stadiumsTabBtn) stadiumsTabBtn.style.display = 'none';
         if (groupFilterBtn) groupFilterBtn.style.display = 'none';
         if (knockoutFilterBtn) knockoutFilterBtn.style.display = 'none';
         if (classTabBtn) classTabBtn.innerHTML = `<i class="fa-solid fa-list-ol"></i> Tabela de Pontos`;
@@ -878,6 +880,7 @@ function adaptUiForLeagueType() {
     } else {
         // Tournament or Cup (Copa do Mundo, Champions League)
         if (groupsTabBtn) groupsTabBtn.style.display = 'flex';
+        if (stadiumsTabBtn) stadiumsTabBtn.style.display = 'flex';
         if (groupFilterBtn) groupFilterBtn.style.display = 'inline-block';
         if (knockoutFilterBtn) knockoutFilterBtn.style.display = 'inline-block';
         if (classTabBtn) classTabBtn.innerHTML = `<i class="fa-solid fa-sitemap"></i> Classificação`;
