@@ -941,14 +941,18 @@ function determineWinner(match) {
 }
 
 function showMatchDetails(matchId, isOpening = false) {
-    state.activeDetailsMatchId = matchId; // Salva o ID ativo para auto-refresh
-    const match = state.matches.find(m => m.id == matchId);
-    if (!match) return;
+    try {
+        state.activeDetailsMatchId = matchId; // Salva o ID ativo para auto-refresh
+        const match = state.matches.find(m => String(m.id) === String(matchId) || String(m._id) === String(matchId) || (m.espn_id && String(m.espn_id) === String(matchId)));
+        if (!match) {
+            console.warn('[showMatchDetails] Match not found for id:', matchId);
+            return;
+        }
 
-    // Se for abertura (isOpening === true), reseta para aba 'Resumo'
-    if (isOpening) {
-        state.activeModalTab = 'summary';
-    }
+        // Se for abertura (isOpening === true), reseta para aba 'Resumo'
+        if (isOpening) {
+            state.activeModalTab = 'summary';
+        }
 
     const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
 
@@ -1256,10 +1260,13 @@ function showMatchDetails(matchId, isOpening = false) {
         ` : ''}
     `;
 
-    const modal = document.getElementById('match-details-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('active'), 10);
+        const modal = document.getElementById('match-details-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+    } catch (err) {
+        console.error('[showMatchDetails] Error displaying match modal:', err);
     }
 }
 
@@ -1473,7 +1480,8 @@ function renderMatches() {
 
             const matchItem = document.createElement('div');
             matchItem.className = 'match-list-item';
-            matchItem.addEventListener('click', () => showMatchDetails(match.id, true));
+            const mId = match.id || match._id || match.espn_id;
+            matchItem.addEventListener('click', () => showMatchDetails(mId, true));
 
             matchItem.innerHTML = `
                 <div class="match-list-meta">
