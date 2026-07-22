@@ -1137,6 +1137,16 @@ function showMatchDetails(matchId, isOpening = false) {
     let lineupsHtml = '';
     if (match.lineups) {
         const renderRoster = (teamLineup, teamName) => {
+            if (!teamLineup) {
+                return `
+                    <div class="lineups-team-column">
+                        <div class="lineup-team-header">
+                            <span class="lineup-team-name">${teamName}</span>
+                        </div>
+                        <div style="color:var(--text-secondary); font-size:0.85rem; padding: 1rem 0;">Escalação indisponível.</div>
+                    </div>
+                `;
+            }
             const startersList = (teamLineup.starters || []).map(p => {
                 return `
                     <div class="lineup-player-row">
@@ -1474,9 +1484,9 @@ function renderMatches() {
                 <div class="match-list-teams">
                     <div class="match-list-team ${homeClass}">
                         <div class="match-team-info">
-                            <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" class="team-crest-img" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en.replace(/'/g, "\\'")}')" onerror="this.src=PLACEHOLDER_FLAG">
+                            <img src="${homeTeam.flag}" alt="${homeTeam.name_en}" class="team-crest-img" onerror="this.src=PLACEHOLDER_FLAG">
                             <span class="team-name-desktop">${homeTeam.name_en}</span>
-                            <span class="team-name-mobile" onclick="event.stopPropagation(); showFlagTooltip(this, '${homeTeam.name_en.replace(/'/g, "\\'")}')">${homeTeam.fifa_code || "TBD"}</span>
+                            <span class="team-name-mobile">${homeTeam.fifa_code || "TBD"}</span>
                         </div>
                         <div class="match-list-score">
                             ${homeScore}
@@ -1485,9 +1495,9 @@ function renderMatches() {
                     </div>
                     <div class="match-list-team ${awayClass}">
                         <div class="match-team-info">
-                            <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" class="team-crest-img" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en.replace(/'/g, "\\'")}')" onerror="this.src=PLACEHOLDER_FLAG">
+                            <img src="${awayTeam.flag}" alt="${awayTeam.name_en}" class="team-crest-img" onerror="this.src=PLACEHOLDER_FLAG">
                             <span class="team-name-desktop">${awayTeam.name_en}</span>
-                            <span class="team-name-mobile" onclick="event.stopPropagation(); showFlagTooltip(this, '${awayTeam.name_en.replace(/'/g, "\\'")}')">${awayTeam.fifa_code || "TBD"}</span>
+                            <span class="team-name-mobile">${awayTeam.fifa_code || "TBD"}</span>
                         </div>
                         <div class="match-list-score">
                             ${awayScore}
