@@ -1873,27 +1873,31 @@ function renderPointsTable(standings, container, leagueObj) {
             else if (item.rank >= standings.length - 2) zoneClass = 'zone-z4';
         }
 
+        const sgVal = item.goalDifference !== undefined && item.goalDifference !== null ? item.goalDifference : '0';
+
         return `
             <tr class="${zoneClass}">
-                <td style="text-align: center; font-weight: bold; width: 40px;">${item.rank}</td>
-                <td style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700; text-align: left;">
-                    ${item.team.logo ? `<img src="${item.team.logo}" style="width: 24px; height: 24px; object-fit: contain;">` : ''}
-                    <span>${item.team.name}</span>
+                <td class="td-pos">${item.rank}</td>
+                <td class="td-clube">
+                    <div class="club-info-wrapper">
+                        ${item.team.logo ? `<img src="${item.team.logo}" class="club-logo-img" alt="${item.team.name}">` : ''}
+                        <span>${item.team.name}</span>
+                    </div>
                 </td>
-                <td style="font-weight: 800; color: var(--accent-color);">${item.points}</td>
-                <td>${item.played}</td>
-                <td>${item.wins}</td>
-                <td>${item.draws}</td>
-                <td>${item.losses}</td>
-                <td>${item.goalsFor}</td>
-                <td>${item.goalsAgainst}</td>
-                <td style="font-weight: 600;">${item.goalDifference}</td>
+                <td class="td-pts">${item.points}</td>
+                <td class="td-stat">${item.played}</td>
+                <td class="td-stat">${item.wins}</td>
+                <td class="td-stat">${item.draws}</td>
+                <td class="td-stat">${item.losses}</td>
+                <td class="td-stat">${item.goalsFor}</td>
+                <td class="td-stat">${item.goalsAgainst}</td>
+                <td class="td-sg">${sgVal}</td>
             </tr>
         `;
     }).join('');
 
     container.innerHTML = `
-        <div class="points-table-wrapper" style="width: 100%; max-width: 1000px; margin: 0 auto; overflow-x: auto; padding: 1rem 0;">
+        <div class="points-table-wrapper" style="width: 100%; max-width: 1000px; margin: 0 auto; overflow-x: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
                 <h2 style="font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;">
                     <span>${leagueObj.flag || '🏆'}</span> Tabela de Classificação — ${leagueObj.name}
@@ -1905,19 +1909,19 @@ function renderPointsTable(standings, container, leagueObj) {
                     <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: #f87171; border-radius: 2px;"></span> Z-4 (Rebaixamento)</span>
                 </div>
             </div>
-            <table class="group-table points-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+            <table class="points-table">
                 <thead>
-                    <tr style="background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem;">
-                        <th style="padding: 0.75rem; text-align: center;">Pos</th>
-                        <th style="padding: 0.75rem; text-align: left;">Clube</th>
-                        <th style="padding: 0.75rem;">PTS</th>
-                        <th style="padding: 0.75rem;">PJ</th>
-                        <th style="padding: 0.75rem;">V</th>
-                        <th style="padding: 0.75rem;">E</th>
-                        <th style="padding: 0.75rem;">D</th>
-                        <th style="padding: 0.75rem;">GP</th>
-                        <th style="padding: 0.75rem;">GC</th>
-                        <th style="padding: 0.75rem;">SG</th>
+                    <tr>
+                        <th class="th-pos">Pos</th>
+                        <th class="th-clube">Clube</th>
+                        <th class="th-stat">PTS</th>
+                        <th class="th-stat">PJ</th>
+                        <th class="th-stat">V</th>
+                        <th class="th-stat">E</th>
+                        <th class="th-stat">D</th>
+                        <th class="th-stat">GP</th>
+                        <th class="th-stat">GC</th>
+                        <th class="th-stat">SG</th>
                     </tr>
                 </thead>
                 <tbody>

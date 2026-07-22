@@ -592,7 +592,13 @@ router.get('/standings', async (req, res) => {
         
         const entries = data.children?.[0]?.standings?.entries || [];
         const formattedStandings = entries.map((e, idx) => {
-            const getStat = (name) => e.stats?.find(s => s.name === name)?.displayValue || '0';
+            const getStat = (...names) => {
+                for (const n of names) {
+                    const st = e.stats?.find(s => s.name?.toLowerCase() === n.toLowerCase() || s.abbreviation?.toLowerCase() === n.toLowerCase());
+                    if (st && st.displayValue !== undefined && st.displayValue !== null) return st.displayValue;
+                }
+                return '0';
+            };
             return {
                 rank: idx + 1,
                 team: {
@@ -601,14 +607,14 @@ router.get('/standings', async (req, res) => {
                     shortName: e.team?.shortDisplayName || e.team?.abbreviation,
                     logo: e.team?.logos?.[0]?.href || ''
                 },
-                played: getStat('gamesPlayed'),
-                wins: getStat('wins'),
-                draws: getStat('ties'),
-                losses: getStat('losses'),
-                goalsFor: getStat('pointsFor'),
-                goalsAgainst: getStat('pointsAgainst'),
-                goalDifference: getStat('pointDifferential'),
-                points: getStat('points')
+                played: getStat('gamesPlayed', 'gp'),
+                wins: getStat('wins', 'w'),
+                draws: getStat('ties', 'd'),
+                losses: getStat('losses', 'l'),
+                goalsFor: getStat('pointsFor', 'f', 'gf'),
+                goalsAgainst: getStat('pointsAgainst', 'a', 'ga'),
+                goalDifference: getStat('pointDifferential', 'gd', 'sg'),
+                points: getStat('points', 'p', 'pts')
             };
         });
         

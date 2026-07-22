@@ -83,7 +83,81 @@ body {
     object-fit: contain;
 }
 
-/* Points Table Color Zones */
+/* Points Table Styling & Alignment */
+.points-table-wrapper {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.points-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.points-table th {
+    padding: 0.85rem 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.points-table td {
+    padding: 0.75rem 0.5rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.points-table .th-pos, .points-table .td-pos {
+    text-align: center;
+    width: 48px;
+    font-weight: 800;
+}
+
+.points-table .th-clube, .points-table .td-clube {
+    text-align: left;
+}
+
+.club-info-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.club-logo-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.points-table .th-stat, .points-table .td-stat,
+.points-table .td-pts, .points-table .td-sg {
+    text-align: center;
+    width: 48px;
+}
+
+.points-table .td-pts {
+    font-weight: 800;
+    color: var(--accent-color);
+    font-size: 1rem;
+}
+
+.points-table .td-sg {
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+/* Color Zones for Standings */
 tr.zone-g4 td:first-child {
     border-left: 4px solid #38bdf8;
     background: rgba(56, 189, 248, 0.08);
