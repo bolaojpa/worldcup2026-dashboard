@@ -133,22 +133,25 @@ body {
 }
 
 .trend-icon {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     display: inline-flex;
     align-items: center;
 }
 
 .trend-icon.up {
-    color: #34d399;
+    color: #10b981;
+    filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.6));
 }
 
 .trend-icon.down {
-    color: #f87171;
+    color: #ef4444;
+    filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
 }
 
 .trend-icon.same {
     color: #64748b;
     font-size: 0.55rem;
+    opacity: 0.6;
 }
 
 .points-table .th-clube, .points-table .td-clube {
