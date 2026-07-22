@@ -614,7 +614,8 @@ router.get('/standings', async (req, res) => {
                 goalsFor: getStat('pointsFor', 'f', 'gf'),
                 goalsAgainst: getStat('pointsAgainst', 'a', 'ga'),
                 goalDifference: getStat('pointDifferential', 'gd', 'sg'),
-                points: getStat('points', 'p', 'pts')
+                points: getStat('points', 'p', 'pts'),
+                rankChange: parseInt(getStat('rankChange', 'rankchange', 'rc')) || 0
             };
         });
         

@@ -1875,9 +1875,22 @@ function renderPointsTable(standings, container, leagueObj) {
 
         const sgVal = item.goalDifference !== undefined && item.goalDifference !== null ? item.goalDifference : '0';
 
+        let trendHtml = `<span class="trend-icon same" title="Manteve a posição"><i class="fa-solid fa-minus"></i></span>`;
+        const rChange = parseInt(item.rankChange) || 0;
+        if (rChange > 0) {
+            trendHtml = `<span class="trend-icon up" title="Subiu ${rChange} posição(ões)"><i class="fa-solid fa-caret-up"></i></span>`;
+        } else if (rChange < 0) {
+            trendHtml = `<span class="trend-icon down" title="Caiu ${Math.abs(rChange)} posição(ões)"><i class="fa-solid fa-caret-down"></i></span>`;
+        }
+
         return `
             <tr class="${zoneClass}">
-                <td class="td-pos">${item.rank}</td>
+                <td class="td-pos">
+                    <div class="pos-wrapper">
+                        <span class="rank-num">${item.rank}</span>
+                        ${trendHtml}
+                    </div>
+                </td>
                 <td class="td-clube">
                     <div class="club-info-wrapper">
                         ${item.team.logo ? `<img src="${item.team.logo}" class="club-logo-img" alt="${item.team.name}">` : ''}

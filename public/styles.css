@@ -117,8 +117,38 @@ body {
 
 .points-table .th-pos, .points-table .td-pos {
     text-align: center;
-    width: 48px;
+    width: 54px;
     font-weight: 800;
+}
+
+.pos-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.rank-num {
+    font-weight: 800;
+}
+
+.trend-icon {
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.trend-icon.up {
+    color: #34d399;
+}
+
+.trend-icon.down {
+    color: #f87171;
+}
+
+.trend-icon.same {
+    color: #64748b;
+    font-size: 0.55rem;
 }
 
 .points-table .th-clube, .points-table .td-clube {
