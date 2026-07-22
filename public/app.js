@@ -950,6 +950,17 @@ function showMatchDetails(matchId, isOpening = false) {
         state.activeModalTab = 'summary';
     }
 
+    const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
+
+    // Toggle Informações tab button (Hidden for leagues, Visible for Copa do Mundo / Cups)
+    const infoTabBtn = document.querySelector('.modal-tab-btn[data-modal-tab="info"]');
+    if (activeLeagueObj.type === 'league') {
+        if (infoTabBtn) infoTabBtn.style.display = 'none';
+        if (state.activeModalTab === 'info') state.activeModalTab = 'summary';
+    } else {
+        if (infoTabBtn) infoTabBtn.style.display = 'inline-flex';
+    }
+
     const currentActiveTab = state.activeModalTab || 'summary';
     const tabBtns = document.querySelectorAll('.modal-tab-btn');
     tabBtns.forEach(t => {
@@ -959,8 +970,6 @@ function showMatchDetails(matchId, isOpening = false) {
             t.classList.remove('active');
         }
     });
-
-    const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
     let stageTitle = '';
     if (activeLeagueObj.type === 'league') {
         stageTitle = match.matchday ? formatMatchdayLabel(match.matchday) : (activeLeagueObj.name || 'Brasileirão Série A');
@@ -1228,6 +1237,13 @@ function showMatchDetails(matchId, isOpening = false) {
         <div class="modal-tab-content ${currentActiveTab === 'lineups' ? 'active' : ''}" id="modal-tab-lineups">
             ${lineupsHtml}
         </div>
+        
+        <!-- Tab 3: Informações (Apenas Copa do Mundo / Torneios de Copa) -->
+        ${activeLeagueObj.type !== 'league' ? `
+            <div class="modal-tab-content ${currentActiveTab === 'info' ? 'active' : ''}" id="modal-tab-info">
+                ${infoHtml}
+            </div>
+        ` : ''}
     `;
 
     const modal = document.getElementById('match-details-modal');
