@@ -381,7 +381,24 @@ router.get('/games', async(req,res) => {
             filter = { league_id: leagueId };
         }
 
-        const games = await Game.find(filter).lean();
+        let games = await Game.find(filter).lean();
+
+        if (leagueId !== "fifa.world" && games.length < 50) {
+            try {
+                const { fetchESPNMatches, syncMatches } = require('../services/espnSync');
+                const mongoose = require('../database');
+                const espnEvents = await fetchESPNMatches("", leagueId);
+                if (espnEvents.length > 0) {
+                    await syncMatches(espnEvents, mongoose.connection.db, "games", leagueId);
+                    const updatedGames = await Game.find(filter).lean();
+                    if (updatedGames.length > 0) {
+                        games = updatedGames;
+                    }
+                }
+            } catch(syncErr) {
+                console.error(`[games] Auto sync error for ${leagueId}:`, syncErr.message);
+            }
+        }
 
         // Get team map from cache
         const teamMap = await getTeamsMap();

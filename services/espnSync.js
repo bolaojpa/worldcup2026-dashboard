@@ -23,9 +23,17 @@ function normalizeTeamName(name) {
 
 async function fetchESPNMatches(datesRange = "", leagueSlug = "fifa.world") {
     try {
+        let defaultDates = datesRange;
+        if (!defaultDates) {
+            if (leagueSlug === "bra.1") {
+                defaultDates = "20260401-20261215";
+            } else if (leagueSlug !== "fifa.world") {
+                defaultDates = "20260801-20270601";
+            }
+        }
         let url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueSlug}/scoreboard?limit=500`;
-        if (datesRange) {
-            url += `&dates=${datesRange}`;
+        if (defaultDates) {
+            url += `&dates=${defaultDates}`;
         }
         const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
         if (!res.ok) return [];

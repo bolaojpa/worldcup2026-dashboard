@@ -1373,9 +1373,13 @@ function renderMatches() {
             }
 
             // Determinar rótulos da fase e grupo conforme o tipo de partida
+            const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
             let mainLabel = '';
             let subLabel = '';
-            if (match.type === 'group') {
+            if (activeLeagueObj.type === 'league') {
+                mainLabel = match.matchday ? `Rodada ${match.matchday}` : 'Rodada';
+                subLabel = '';
+            } else if (match.type === 'group') {
                 mainLabel = match.group ? `Grupo ${match.group}` : 'Grupo';
                 subLabel = 'Fase de Grupos';
             } else {
@@ -1385,7 +1389,8 @@ function renderMatches() {
 
             // Status Badge
             let statusHtml = '';
-            if (match.finished === "TRUE") {
+            const isMatchFinished = match.finished === "TRUE" || match.finished === true || match.time_elapsed === "finished";
+            if (isMatchFinished) {
                 statusHtml = `<span class="badge finished">FIM</span>`;
             } else {
                 const elapsedText = getLiveTimeText(match);
@@ -1393,8 +1398,9 @@ function renderMatches() {
                     statusHtml = `<span class="badge halftime-badge"><i class="fa-solid fa-mug-hot"></i> INT</span>`;
                 } else if (elapsedText) {
                     statusHtml = `<span class="badge live-badge"><span class="pulse-dot"></span> ${elapsedText}</span>`;
+                } else if (diffMins < -180) {
+                    statusHtml = `<span class="badge finished">FIM</span>`;
                 } else if (diffMins > 0 && diffMins <= 60) {
-                    // Contagem regressiva se começar em menos de 1h
                     statusHtml = `<span class="badge upcoming-soon"><i class="fa-solid fa-hourglass-start"></i> ${diffMins} min</span>`;
                 } else if (isSoon) {
                     statusHtml = `<span class="badge upcoming-soon" title="${soonText}"><i class="fa-solid fa-hourglass-start"></i> ${timeStr}</span>`;
