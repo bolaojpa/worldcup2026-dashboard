@@ -960,7 +960,16 @@ function showMatchDetails(matchId, isOpening = false) {
         }
     });
 
-    const stageTitle = match.type === 'group' ? (match.group ? `Fase de Grupos - Grupo ${match.group}` : 'Fase de Grupos') : (phaseTranslations[match.type] || 'Mata-Mata');
+    const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
+    let stageTitle = '';
+    if (activeLeagueObj.type === 'league') {
+        stageTitle = match.matchday ? formatMatchdayLabel(match.matchday) : (activeLeagueObj.name || 'Brasileirão Série A');
+    } else if (match.type === 'group') {
+        stageTitle = match.group ? `Fase de Grupos - Grupo ${match.group}` : 'Fase de Grupos';
+    } else {
+        stageTitle = phaseTranslations[match.type] || 'Mata-Mata';
+    }
+
     const modalTitleEl = document.getElementById('modal-stage-title');
     if (modalTitleEl) modalTitleEl.innerText = stageTitle;
 
@@ -1218,11 +1227,6 @@ function showMatchDetails(matchId, isOpening = false) {
         <!-- Tab 2: Escalações -->
         <div class="modal-tab-content ${currentActiveTab === 'lineups' ? 'active' : ''}" id="modal-tab-lineups">
             ${lineupsHtml}
-        </div>
-        
-        <!-- Tab 3: Informações -->
-        <div class="modal-tab-content ${currentActiveTab === 'info' ? 'active' : ''}" id="modal-tab-info">
-            ${infoHtml}
         </div>
     `;
 
