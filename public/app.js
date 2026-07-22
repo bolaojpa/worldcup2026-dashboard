@@ -871,6 +871,8 @@ function adaptUiForLeagueType() {
 
     if (activeLeagueObj.type === 'league') {
         // Point-based league (Brasileirão, Premier League, etc.)
+        document.body.classList.add('league-mode');
+        document.body.classList.remove('cup-mode');
         if (groupsTabBtn) groupsTabBtn.style.display = 'none';
         if (stadiumsTabBtn) stadiumsTabBtn.style.display = 'none';
         if (groupFilterBtn) groupFilterBtn.style.display = 'none';
@@ -879,6 +881,8 @@ function adaptUiForLeagueType() {
         if (teamsTabBtn) teamsTabBtn.innerHTML = `<i class="fa-solid fa-shield"></i> Times`;
     } else {
         // Tournament or Cup (Copa do Mundo, Champions League)
+        document.body.classList.add('cup-mode');
+        document.body.classList.remove('league-mode');
         if (groupsTabBtn) groupsTabBtn.style.display = 'flex';
         if (stadiumsTabBtn) stadiumsTabBtn.style.display = 'flex';
         if (groupFilterBtn) groupFilterBtn.style.display = 'inline-block';
@@ -1375,12 +1379,22 @@ function renderMatches() {
                 }
             }
 
+            function formatMatchdayLabel(matchday) {
+                if (!matchday) return 'Rodada';
+                const str = String(matchday).trim();
+                const numMatch = str.match(/(\d+)$/);
+                if (numMatch) {
+                    return `Rodada ${numMatch[1]}`;
+                }
+                return `Rodada ${str}`;
+            }
+
             // Determinar rótulos da fase e grupo conforme o tipo de partida
             const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
             let mainLabel = '';
             let subLabel = '';
             if (activeLeagueObj.type === 'league') {
-                mainLabel = match.matchday ? `Rodada ${match.matchday}` : 'Rodada';
+                mainLabel = formatMatchdayLabel(match.matchday);
                 subLabel = '';
             } else if (match.type === 'group') {
                 mainLabel = match.group ? `Grupo ${match.group}` : 'Grupo';
@@ -1573,7 +1587,33 @@ function renderTeams() {
     const container = document.getElementById('teams-grid');
     container.innerHTML = '';
 
-    // Group teams by group name
+    const activeLeagueObj = state.leagues.find(l => l.id === state.activeLeague) || { type: 'cup' };
+
+    if (activeLeagueObj.type === 'league') {
+        // Render list of club teams for leagues
+        state.teams.forEach(team => {
+            const card = document.createElement('div');
+            card.className = 'glass-card';
+            card.style.display = 'flex';
+            card.style.alignItems = 'center';
+            card.style.gap = '1rem';
+            card.style.padding = '1rem';
+            card.style.transition = 'transform 0.2s ease, border-color 0.2s ease';
+            card.onclick = () => showTeamSquad(team.id);
+            
+            card.innerHTML = `
+                <img src="${team.flag}" style="width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));" onerror="this.src=PLACEHOLDER_FLAG">
+                <div>
+                    <h4 style="font-weight: 800; font-size: 1rem; margin-bottom: 0.15rem;">${team.name_en}</h4>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary)">Sigla: <strong>${team.fifa_code || ''}</strong></span>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        return;
+    }
+
+    // Group teams by group name for World Cup / Champions
     const grouped = {};
     state.teams.forEach(team => {
         const gName = team.groups || 'Outros';
